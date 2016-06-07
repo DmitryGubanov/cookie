@@ -68,7 +68,6 @@ public class User {
      * @return a copy of the Reward for reference purposes
      */
     public Reward drawLottery(Lottery lottery) {
-        // TODO: figure out best way to do this
         Reward rewardNew = lottery.generateReward();
         Reward rewardClone = new Reward(rewardNew);
 
