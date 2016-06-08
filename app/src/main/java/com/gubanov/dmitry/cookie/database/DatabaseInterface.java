@@ -8,8 +8,13 @@ import java.util.List;
  */
 public class DatabaseInterface {
 
-    public HashMap<Integer, List> getRewardData() {
+    public List getRewardData(int id) {
         // TODO: access database and return reward data in a list with the reward id as the key
+        return null;
+    }
+
+    public HashMap<Integer, Integer> getRewardsWeights(String type) {
+        // TODO: access database and return rewards' weights with the reward id as the key
         return null;
     }
 }

@@ -54,8 +54,8 @@ public class Reward {
      */
     public Reward(int id, int weight, String type, boolean usable, RewardContent content) {
         this.id = id;
-        this.weight = weight;
-        this.type = type;
+        this.weight = weight; // TODO: decide whether or not to store this in the Reward
+        this.type = type; //TODO: decide whether or not to store this in the content
         this.usable = usable;
         this.content = content;
     }
@@ -102,6 +102,7 @@ public class Reward {
      * @return this Reward's RewardContent
      */
     public RewardContent getContent() {
+        // TODO: return copy instead
         return this.content;
     }
 }
