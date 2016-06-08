@@ -4,7 +4,6 @@ import com.gubanov.dmitry.cookie.database.DatabaseInterface;
 import com.gubanov.dmitry.cookie.util.AssetBuilder;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Random;
 
 /**

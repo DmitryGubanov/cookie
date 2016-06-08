@@ -9,6 +9,7 @@ public class UsableReward extends Reward {
 
     /**
      * Constructor for UsableReward
+     *
      * @param rewardToCopy a Reward that will be copied
      */
     public UsableReward(Reward rewardToCopy) {
@@ -17,10 +18,11 @@ public class UsableReward extends Reward {
 
     /**
      * Constructor for UsableReward
-     * @param id this UsableReward's id
-     * @param weight this UsableReward's relative weight, for probability purposes
-     * @param type this UsableReward's type ("message", "picture", ...)
-     * @param usable boolean for whether this UsableReward is usable
+     *
+     * @param id      this UsableReward's id
+     * @param weight  this UsableReward's relative weight, for probability purposes
+     * @param type    this UsableReward's type ("message", "picture", ...)
+     * @param usable  boolean for whether this UsableReward is usable
      * @param content this UsableReward's RewardContent, i.e. a message
      */
     public UsableReward(int id, int weight, String type, boolean usable, RewardContent content) {

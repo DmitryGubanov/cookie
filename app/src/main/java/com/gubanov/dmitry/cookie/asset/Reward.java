@@ -1,6 +1,5 @@
 package com.gubanov.dmitry.cookie.asset;
 
-import android.view.View;
 
 /**
  * A reward for the User
