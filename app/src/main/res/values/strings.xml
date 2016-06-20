@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">Cookie</string>
     <string name="action_settings">Settings</string>
+    <string name="reward_weight_hint">Reward weight (number)</string>
+    <string name="reward_type_hint">Reward type (string)</string>
+    <string name="reward_content_hint">Reward content/message (string)</string>
+    <string name="title_activity_create_reward">CreateRewardActivity</string>
 </resources>

@@ -62,10 +62,10 @@ public class User {
     }
 
     /**
-     * Draws from a Lottery to get a Reward - assumes the Lottery is available
+     * Draws from a LotteryModel to get a RewardModel - assumes the LotteryModel is available
      *
-     * @param lottery a Lottery for the User to draw a Reward from
-     * @return a copy of the Reward for reference purposes
+     * @param lottery a LotteryModel for the User to draw a RewardModel from
+     * @return a copy of the RewardModel for reference purposes
      */
     public Reward drawLottery(Lottery lottery) {
         Reward rewardNew = lottery.generateReward();
@@ -79,10 +79,10 @@ public class User {
     /**
      * Use a UsableReward
      *
-     * @param reward the Reward the User intends to use
+     * @param reward the RewardModel the User intends to use
      */
     public void useReward(Reward reward) {
-        // TODO: add logic for using a reward
+        // TODO: PRIORITY 4: for now useReward just removes the reward from the user
         this.rewards.remove(reward);
     }
 }

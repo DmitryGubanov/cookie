@@ -6,34 +6,34 @@ package com.gubanov.dmitry.cookie.asset;
  */
 public class Reward {
     /**
-     * This Reward's id
+     * This RewardModel's id
      */
     private int id;
 
     /**
-     * This Reward's relative weight, used to determine probability
+     * This RewardModel's relative weight, used to determine probability
      */
     private int weight;
 
     /**
-     * This Reward's type
+     * This RewardModel's type
      */
     private String type;
 
     /**
-     * Whether or not this Reward is usable
+     * Whether or not this RewardModel is usable
      */
     private boolean usable;
 
     /**
-     * This Reward's content (task, picture, message, etc.)
+     * This RewardModel's content (task, picture, message, etc.)
      */
-    private RewardContent content;
+    private String content;
 
     /**
-     * Constructor for Reward
+     * Constructor for RewardModel
      *
-     * @param rewardToCopy a Reward that will be copied
+     * @param rewardToCopy a RewardModel that will be copied
      */
     public Reward(Reward rewardToCopy) {
         this.id = rewardToCopy.getId();
@@ -44,50 +44,49 @@ public class Reward {
     }
 
     /**
-     * Constructor for Reward
+     * Constructor for RewardModel
      *
-     * @param id     unique id to identify the Reward
-     * @param weight relative weight of the Reward, used to determine probability
-     * @param type   the type of the Reward ("message", "picture", ...)
-     * @param usable boolean for whether or not the User can use this Reward or if they keep it
+     * @param weight relative weight of the RewardModel, used to determine probability
+     * @param type   the type of the RewardModel ("message", "picture", ...)
+     * @param usable boolean for whether or not the User can use this RewardModel or if they keep it
      */
-    public Reward(int id, int weight, String type, boolean usable, RewardContent content) {
-        this.id = id;
-        this.weight = weight; // TODO: decide whether or not to store this in the Reward
-        this.type = type; //TODO: decide whether or not to store this in the content
+    public Reward(int weight, String type, boolean usable, String content) {
+        //this.id = id;
+        this.weight = weight; // TODO: PRIORITY 3: should weight be store in db or object or both?
+        this.type = type; //TODO: PRIORITY 3: should type be store in db or object or both?
         this.usable = usable;
         this.content = content;
     }
 
     /**
-     * Gets this Reward's id
+     * Gets this RewardModel's id
      *
-     * @return this Reward's id
+     * @return this RewardModel's id
      */
     public int getId() {
         return this.id;
     }
 
     /**
-     * Gets this Reward's weight
+     * Gets this RewardModel's weight
      *
-     * @return this Reward's weight
+     * @return this RewardModel's weight
      */
     public int getWeight() {
         return this.weight;
     }
 
     /**
-     * Gets this Reward's type
+     * Gets this RewardModel's type
      *
-     * @return this Reward's type
+     * @return this RewardModel's type
      */
     public String getType() {
         return this.type;
     }
 
     /**
-     * Returns whether or not this Reward is usable
+     * Returns whether or not this RewardModel is usable
      *
      * @return true if usable, false if not
      */
@@ -96,12 +95,12 @@ public class Reward {
     }
 
     /**
-     * Gets this Reward's content
+     * Gets this RewardModel's content
      *
-     * @return this Reward's RewardContent
+     * @return this RewardModel's RewardContent
      */
-    public RewardContent getContent() {
-        // TODO: return copy instead
+    public String getContent() {
+        // TODO: PRIORITY 3: return copy of RewardContent instead
         return this.content;
     }
 }

@@ -1,20 +1,12 @@
 package com.gubanov.dmitry.cookie.asset;
 
-import com.gubanov.dmitry.cookie.database.DatabaseInterface;
-import com.gubanov.dmitry.cookie.util.AssetBuilder;
-
-import java.util.HashMap;
+import java.util.Date;
 import java.util.Random;
 
 /**
  * A Lottery from which a User can draw a Reward
  */
 public class Lottery {
-
-    /**
-     * This Lottery's DatabaseInterface
-     */
-    private DatabaseInterface dbi;
 
     /**
      * This Lottery's random number generator
@@ -26,14 +18,22 @@ public class Lottery {
      */
     private String type;
 
+    /**
+     * This Lottery's availability date, i.e. when the User will be able to draw from it
+     */
+    private Date dateAvailable;
+
 
     public Lottery(String type) {
         this.type = type;
-        this.dbi = new DatabaseInterface();
         this.rn = new Random();
     }
 
     public Reward generateReward() {
+
+        // TODO: PRIORITY 1: implement generateReward to use this.rewards
+
+        /*
         HashMap<Integer, Integer> rewardsWeights = this.dbi.getRewardsWeights(this.type);
 
         int totalWeight = 0;
@@ -51,8 +51,8 @@ public class Lottery {
                 break;
             }
         }
+        */
 
-        AssetBuilder ab = new AssetBuilder();
-        return ab.buildReward(rewardId);
+        return null;
     }
 }
