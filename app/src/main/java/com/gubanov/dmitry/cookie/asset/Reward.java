@@ -44,14 +44,24 @@ public class Reward {
     }
 
     /**
-     * Constructor for RewardModel
+     * Constructor for Reward, to be used by Activities and Classes that do not need id to work
      *
      * @param weight relative weight of the RewardModel, used to determine probability
      * @param type   the type of the RewardModel ("message", "picture", ...)
      * @param usable boolean for whether or not the User can use this RewardModel or if they keep it
      */
     public Reward(int weight, String type, boolean usable, String content) {
-        //this.id = id;
+        this.id = -1;
+        this.weight = weight; // TODO: PRIORITY 3: should weight be store in db or object or both?
+        this.type = type; //TODO: PRIORITY 3: should type be store in db or object or both?
+        this.usable = usable;
+        this.content = content;
+    }
+
+    // TODO: PRIORITY 1: will ultimately make it so all rewards have IDs
+    // ID will come from DB and ApplicationInterface will make rewards with IDs
+    public Reward(int id, int weight, String type, boolean usable, String content) {
+        this.id = id;
         this.weight = weight; // TODO: PRIORITY 3: should weight be store in db or object or both?
         this.type = type; //TODO: PRIORITY 3: should type be store in db or object or both?
         this.usable = usable;

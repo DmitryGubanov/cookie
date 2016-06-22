@@ -1,6 +1,8 @@
 package com.gubanov.dmitry.cookie.asset;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -18,6 +20,8 @@ public class Lottery {
      */
     private String type;
 
+    private List<Reward> rewards;
+
     /**
      * This Lottery's availability date, i.e. when the User will be able to draw from it
      */
@@ -27,32 +31,43 @@ public class Lottery {
     public Lottery(String type) {
         this.type = type;
         this.rn = new Random();
+        this.rewards = new ArrayList<>();
+    }
+
+    public String getType() {
+        return this.type;
+    }
+
+    public List<Reward> getPossibleRewards() {
+        return this.rewards;
+    }
+
+    public void addPossibleReward(Reward reward) {
+        this.rewards.add(new Reward(reward));
     }
 
     public Reward generateReward() {
 
-        // TODO: PRIORITY 1: implement generateReward to use this.rewards
-
-        /*
-        HashMap<Integer, Integer> rewardsWeights = this.dbi.getRewardsWeights(this.type);
+        if (this.rewards.isEmpty()) {
+            return null;
+        }
 
         int totalWeight = 0;
-        for (Integer key : rewardsWeights.keySet()) {
-            totalWeight = totalWeight + rewardsWeights.get(key);
+        for (Reward reward : rewards) {
+            totalWeight = totalWeight + reward.getWeight();
         }
 
         int random = rn.nextInt(totalWeight) + 1;
 
-        int rewardId = 0;
-        for (Integer key : rewardsWeights.keySet()) {
-            random = random - rewardsWeights.get(key);
+        for (Reward reward : rewards) {
+            random = random - reward.getWeight();
             if (random <= 0) {
-                rewardId = key;
-                break;
+                Reward generatedReward = new Reward(reward);
+                return generatedReward;
             }
         }
-        */
 
+        // To make the compiler happy
         return null;
     }
 }
