@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.gubanov.dmitry.cookie.asset.Lottery;
 import com.gubanov.dmitry.cookie.asset.Reward;
 import com.gubanov.dmitry.cookie.asset.User;
 import com.gubanov.dmitry.cookie.database.models.LotteryModel;
@@ -22,52 +23,75 @@ import java.util.List;
  */
 public class DatabaseInterface extends SQLiteOpenHelper {
 
-    // TODO: PRIORITY 3: add javadocs
+    // TODO: PRIORITY 3: add javadocs - here and everywhere else
 
     private static final String DATABASE_NAME = "CookieDB";
-    private static final int DATABASE_VERSION = 1;
+    private static final String DATABASE_NAME_TESTING = "CookieDB_test";
+    private static final int DATABASE_VERSION = 2;
 
     private static final String LOG = "DatabaseInterfaceLog";
 
     private SQLiteDatabase db;
 
-    private UserModel dbUserModel = new UserModel();
-    private RewardModel dbRewardModel = new RewardModel();
-    private LotteryModel dbLotteryModel = new LotteryModel();
+    public DatabaseInterface(Context context, boolean testing) {
+        super(context, getDatabaseName(testing), null, DATABASE_VERSION);
+    }
 
-    public DatabaseInterface(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    private static String getDatabaseName(boolean testing) {
+        return (testing) ? DATABASE_NAME_TESTING : DATABASE_NAME;
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
         // TODO: PRIORITY 3: make onCreate use a general list of create table queries
-        db.execSQL(dbUserModel.createUserTable());
-        db.execSQL(dbUserModel.createUserRewardsTable());
-        db.execSQL(dbUserModel.createUserLotteriesTable());
-        db.execSQL(dbRewardModel.createRewardTable());
-        db.execSQL(dbLotteryModel.createLotteryTable());
+        db.execSQL(UserModel.CREATE_TABLE_USER);
+        db.execSQL(UserModel.CREATE_TABLE_USER_REWARDS);
+        db.execSQL(UserModel.CREATE_TABLE_USER_LOTTERIES);
+        db.execSQL(RewardModel.CREATE_TABLE_REWARD);
+        db.execSQL(LotteryModel.CREATE_TABLE_LOTTERY);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // TODO: PRIORITY 3: make onUpgrade use general list of table names
-        db.execSQL("DROP TABLE IF EXISTS " + dbUserModel.getUserTableName());
-        db.execSQL("DROP TABLE IF EXISTS " + dbUserModel.getUserRewardsTableName());
-        db.execSQL("DROP TABLE IF EXISTS " + dbUserModel.getUserLotteriesTableName());
-        db.execSQL("DROP TABLE IF EXISTS " + dbRewardModel.getRewardTableName());
-        db.execSQL("DROP TABLE IF EXISTS " + dbLotteryModel.getLotteryTableName());
+        // TODO: PRIORITY 4: make it so upgrading doesn't reset everything
+
+        db.execSQL("DROP TABLE IF EXISTS " + UserModel.TABLE_USER);
+        db.execSQL("DROP TABLE IF EXISTS " + UserModel.TABLE_USER_REWARDS);
+        db.execSQL("DROP TABLE IF EXISTS " + UserModel.TABLE_USER_LOTTERIES);
+        db.execSQL("DROP TABLE IF EXISTS " + RewardModel.TABLE_REWARD);
+        db.execSQL("DROP TABLE IF EXISTS " + LotteryModel.TABLE_LOTTERY);
 
         this.onCreate(db);
     }
 
-    public void createReward(Reward reward) {
+    public long createUser(User user) {
+        // TODO: PRIORITY 0
+        return 1;
+    }
+
+    public User getUserById(int userId) {
+        // TODO: PRIORITY 0
+        return null;
+    }
+
+    public User getUserByUserName(String userName) {
+        // TODO: PRIORITY 0
+        return null;
+    }
+
+    public List<User> getUsers() {
+        // TODO: PRIORITY 0
+        return null;
+    }
+
+    public long createReward(Reward reward) {
         int weight = reward.getWeight();
         String type = reward.getType();
         int usable = reward.isUsable() ? 1 : 0;
         String content = reward.getContent();
 
-        SQLiteDatabase db = this.getReadableDatabase();
+        SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(RewardModel.COLUMN_WEIGHT, weight);
@@ -75,7 +99,22 @@ public class DatabaseInterface extends SQLiteOpenHelper {
         values.put(RewardModel.COLUMN_IS_USABLE, usable);
         values.put(RewardModel.COLUMN_CONTENT, content);
 
-        db.insert(dbRewardModel.getRewardTableName(), null, values);
+        return db.insert(RewardModel.TABLE_REWARD, null, values);
+    }
+
+    public Reward getRewardById(int rewardId) {
+        // TODO: PRIORITY 0
+        return null;
+    }
+
+    public List<Reward> getRewardsByType(String type) {
+        // TODO: PRIORITY 0
+        return null;
+    }
+
+    public List<Reward> getUsableRewards(boolean usable) {
+        // TODO: PRIORITY 0
+        return null;
     }
 
     // TODO: PRIORITY 3: this method exists for testing purposes - delete once done
@@ -83,7 +122,7 @@ public class DatabaseInterface extends SQLiteOpenHelper {
         List<Reward> rewards = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String selectQuery = dbRewardModel.selectRewards();
+        String selectQuery = RewardModel.SELECT_REWARDS;
 
         Log.e(LOG, selectQuery);
 
@@ -92,33 +131,30 @@ public class DatabaseInterface extends SQLiteOpenHelper {
             return rewards;
         }
 
-        int weight;
-        String type;
-        boolean usable;
-        String content;
         do {
-            weight = c.getInt(c.getColumnIndex(RewardModel.COLUMN_WEIGHT));
-            type = c.getString(c.getColumnIndex(RewardModel.COLUMN_TYPE));
-            usable = (c.getInt(c.getColumnIndex(RewardModel.COLUMN_IS_USABLE)) == 1);
-            content = c.getString(c.getColumnIndex(RewardModel.COLUMN_CONTENT));
-            rewards.add(new Reward(weight, type, usable, content));
+            rewards.add(new Reward(
+                    c.getInt(c.getColumnIndex(RewardModel.COLUMN_REWARD_ID)),
+                    c.getInt(c.getColumnIndex(RewardModel.COLUMN_WEIGHT)),
+                    c.getString(c.getColumnIndex(RewardModel.COLUMN_TYPE)),
+                    c.getInt(c.getColumnIndex(RewardModel.COLUMN_IS_USABLE)) == 1,
+                    c.getString(c.getColumnIndex(RewardModel.COLUMN_CONTENT))));
         } while (c.moveToNext());
 
         return rewards;
     }
 
-    public void createRewardForUser(Reward reward, User user) {
+    public void addRewardToUser(Reward reward, User user) {
         int rewardId = reward.getId();
         int userId = user.getId();
 
-        SQLiteDatabase db = this.getReadableDatabase();
+        SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(UserModel.COLUMN_USER_ID, userId);
         values.put(UserModel.COLUMN_REWARD_ID, rewardId);
         values.put(UserModel.COLUMN_REWARD_COUNT, 0);
 
-        db.insert(dbUserModel.getUserRewardsTableName(), null, values);
+        db.insert(UserModel.TABLE_USER_REWARDS, null, values);
     }
 
     public void removeRewardFromUser(Reward reward, User user) {
@@ -127,22 +163,43 @@ public class DatabaseInterface extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getReadableDatabase();
 
-        db.delete(dbUserModel.getUserRewardsTableName(),
+        db.delete(UserModel.TABLE_USER_REWARDS,
                 UserModel.COLUMN_USER_ID + " = ? AND " + UserModel.COLUMN_REWARD_ID + " = ?",
                 new String[]{String.valueOf(userId), String.valueOf(rewardId)});
     }
 
+    // TODO: PRIORITY 3: use convenient update?
     public void changeRewardCountForUser(Reward reward, User user, int change) {
         if (change == 0) {
             return;
         }
 
-        SQLiteDatabase db = this.getReadableDatabase();
+        SQLiteDatabase db = this.getWritableDatabase();
         String updateQuery =
-                dbUserModel.updateRewardCountForUser(user.getId(), reward.getId(), change);
+                UserModel.updateRewardCountForUser(user.getId(), reward.getId(), change);
 
         Log.e(LOG, updateQuery);
 
         db.execSQL(updateQuery);
+    }
+
+    public long createLottery(Lottery lottery) {
+        // TODO: PRIORITY 0
+        return -1;
+    }
+
+    public Lottery getLotteryById(int id) {
+        // TODO: PRIORITY 0
+        return null;
+    }
+
+    public Lottery getLotteryByType(String type) {
+        // TODO: PRIORITY 0
+        return null;
+    }
+
+    public List<Lottery> getLotteries() {
+        // TODO: PRIORITY 0
+        return null;
     }
 }

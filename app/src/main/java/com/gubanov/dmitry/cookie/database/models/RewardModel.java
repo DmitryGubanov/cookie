@@ -7,7 +7,7 @@ public class RewardModel {
 
     // TODO: PRIORITY 3: you have both private and public static final vars - pick one to use
 
-    private static final String TABLE_REWARD = "reward";
+    public static final String TABLE_REWARD = "reward";
 
     public static final String COLUMN_REWARD_ID = "reward_id";
     public static final String COLUMN_WEIGHT = "weight";
@@ -15,7 +15,7 @@ public class RewardModel {
     public static final String COLUMN_IS_USABLE = "is_usable";
     public static final String COLUMN_CONTENT = "content";
 
-    private static final String CREATE_TABLE_REWARD =
+    public static final String CREATE_TABLE_REWARD =
             "CREATE TABLE " + TABLE_REWARD + "("
                     + COLUMN_REWARD_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + COLUMN_WEIGHT + " INTEGER NOT NULL,"
@@ -25,17 +25,5 @@ public class RewardModel {
                     + "CHECK (" + COLUMN_IS_USABLE + " IN (0, 1))"
                     + ")";
 
-    private static final String SELECT_REWARDS = "SELECT * FROM " + TABLE_REWARD;
-
-    public String getRewardTableName() {
-        return TABLE_REWARD;
-    }
-
-    public String createRewardTable() {
-        return CREATE_TABLE_REWARD;
-    }
-
-    public String selectRewards() {
-        return SELECT_REWARDS;
-    }
+    public static final String SELECT_REWARDS = "SELECT * FROM " + TABLE_REWARD;
 }

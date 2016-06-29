@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
         LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         // TODO: PRIORITY 3: rewrite this entire activity with code that isn't shit
-        ApplicationInterface api = new ApplicationInterface(this.getApplicationContext());
+        ApplicationInterface api = new ApplicationInterface(this.getApplicationContext(), false);
         List<Reward> rewards = api.getRewards();
 
         if (!rewards.isEmpty()) {

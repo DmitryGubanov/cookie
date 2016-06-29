@@ -15,6 +15,8 @@ public class Lottery {
      */
     private Random rn;
 
+    private int id;
+
     /**
      * This Lottery's type ("daily", "weekly", etc.)
      */
@@ -29,9 +31,21 @@ public class Lottery {
 
 
     public Lottery(String type) {
+        this.id = -1;
         this.type = type;
         this.rn = new Random();
         this.rewards = new ArrayList<>();
+    }
+
+    public Lottery(int id, String type) {
+        this.id = id;
+        this.type = type;
+        this.rn = new Random();
+        this.rewards = new ArrayList<>();
+    }
+
+    public int getId() {
+        return this.id;
     }
 
     public String getType() {

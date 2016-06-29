@@ -23,7 +23,7 @@ public class CreateRewardActivity extends AppCompatActivity {
 
         // TODO: PRIORITY 3: remove this for proper code later
         Context context = this;
-        final ApplicationInterface api = new ApplicationInterface(this.getApplicationContext());
+        final ApplicationInterface api = new ApplicationInterface(this.getApplicationContext(), false);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         assert fab != null;

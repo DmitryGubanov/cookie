@@ -16,8 +16,8 @@ public class ApplicationInterface {
 
     private DatabaseInterface dbi;
 
-    public ApplicationInterface(Context appContext) {
-        this.dbi = new DatabaseInterface(appContext);
+    public ApplicationInterface(Context appContext, boolean testing) {
+        this.dbi = new DatabaseInterface(appContext, testing);
     }
 
     public void createReward(Reward reward) {
@@ -34,7 +34,7 @@ public class ApplicationInterface {
 
         // TODO: PRIORITY 1: check if user already has this reward and update the number
 
-        this.dbi.createRewardForUser(newReward, user);
+        this.dbi.addRewardToUser(newReward, user);
     }
 
     public void userUsesReward(User user, Reward reward) {
