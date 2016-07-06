@@ -53,7 +53,7 @@ public class Lottery {
     }
 
     public List<Reward> getPossibleRewards() {
-        return this.rewards;
+        return new ArrayList<>(this.rewards);
     }
 
     public void addPossibleReward(Reward reward) {
@@ -76,8 +76,7 @@ public class Lottery {
         for (Reward reward : rewards) {
             random = random - reward.getWeight();
             if (random <= 0) {
-                Reward generatedReward = new Reward(reward);
-                return generatedReward;
+                return new Reward(reward);
             }
         }
 

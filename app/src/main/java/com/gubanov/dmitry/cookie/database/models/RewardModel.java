@@ -5,8 +5,6 @@ package com.gubanov.dmitry.cookie.database.models;
  */
 public class RewardModel {
 
-    // TODO: PRIORITY 3: you have both private and public static final vars - pick one to use
-
     public static final String TABLE_REWARD = "reward";
 
     public static final String COLUMN_REWARD_ID = "reward_id";

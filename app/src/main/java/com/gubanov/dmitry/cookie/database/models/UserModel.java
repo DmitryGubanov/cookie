@@ -13,6 +13,7 @@ public class UserModel {
     public static final String COLUMN_USER_ID = "user_id";
     public static final String COLUMN_REWARD_ID = "reward_id";
     public static final String COLUMN_LOTTERY_ID = "lottery_id";
+    public static final String COLUMN_USER_LOTTERY_ID = "user_lottery_id";
     public static final String COLUMN_USER_NAME = "user_name";
     public static final String COLUMN_REWARD_COUNT = "reward_count";
     public static final String COLUMN_DATE_AVAILABLE = "date_available";
@@ -35,6 +36,7 @@ public class UserModel {
             "CREATE TABLE " + TABLE_USER_LOTTERIES + "("
                     + COLUMN_USER_ID + " INTEGER NOT NULL,"
                     + COLUMN_LOTTERY_ID + " INTEGER NOT NULL,"
+                    + COLUMN_USER_LOTTERY_ID + " INTEGER NOT NULL,"
                     + COLUMN_DATE_AVAILABLE + " DATE NOT NULL,"
                     + "PRIMARY KEY (" + COLUMN_USER_ID + ", " + COLUMN_LOTTERY_ID + ")"
                     + ")";

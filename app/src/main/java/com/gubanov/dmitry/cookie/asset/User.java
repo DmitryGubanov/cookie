@@ -68,9 +68,11 @@ public class User {
      * @return a copy of the Reward for reference purposes
      */
     public Reward drawLottery(Lottery lottery) {
-        Reward rewardNew = lottery.generateReward();
+        // TODO: PRIORITY 3: might not need this method
+        Reward reward = lottery.generateReward();
+        this.addReward(reward);
 
-        return new Reward(rewardNew);
+        return new Reward(reward);
     }
 
     public void addReward(Reward reward) {

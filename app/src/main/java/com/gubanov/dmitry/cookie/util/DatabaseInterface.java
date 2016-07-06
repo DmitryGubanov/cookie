@@ -17,6 +17,8 @@ import com.gubanov.dmitry.cookie.database.models.UserModel;
 import java.util.ArrayList;
 import java.util.List;
 
+// TODO: PRIORITY 1: rename methods to getUserRewards/getLotteryRewards (for example)
+
 /**
  * A database interface used for communicating between the objects and the database.
  * Intended to perform database operations given objects and/or return objects.
@@ -49,6 +51,7 @@ public class DatabaseInterface extends SQLiteOpenHelper {
         db.execSQL(UserModel.CREATE_TABLE_USER_LOTTERIES);
         db.execSQL(RewardModel.CREATE_TABLE_REWARD);
         db.execSQL(LotteryModel.CREATE_TABLE_LOTTERY);
+        db.execSQL(LotteryModel.CREATE_TABLE_LOTTERY_REWARDS);
     }
 
     @Override
@@ -61,30 +64,38 @@ public class DatabaseInterface extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + UserModel.TABLE_USER_LOTTERIES);
         db.execSQL("DROP TABLE IF EXISTS " + RewardModel.TABLE_REWARD);
         db.execSQL("DROP TABLE IF EXISTS " + LotteryModel.TABLE_LOTTERY);
+        db.execSQL("DROP TABLE IF EXISTS " + LotteryModel.TABLE_LOTTERY_REWARDS);
 
         this.onCreate(db);
     }
 
-    public long createUser(User user) {
-        // TODO: PRIORITY 0
+    public long createUser(String username) {
+        // TODO: PRIORITY 0 !t
         return 1;
     }
 
-    public User getUserById(int userId) {
+    public User getUser(int userId) {
         // TODO: PRIORITY 0
         return null;
     }
 
-    public User getUserByUserName(String userName) {
-        // TODO: PRIORITY 0
+    public User getUser(String username) {
+        // TODO: PRIORITY 0 !t
         return null;
     }
 
+    // get all users - used for testing purposes, mainly
     public List<User> getUsers() {
-        // TODO: PRIORITY 0
+        // TODO: PRIORITY 0 !t
         return null;
     }
 
+    public long createReward(Reward reward, User user, Lottery lottery) {
+        // TODO: PRIORITY 0!t Steal method below and then remove? one below
+        return 0;
+    }
+
+    // TODO: PRIORITY 0: check validity of this method
     public long createReward(Reward reward) {
         int weight = reward.getWeight();
         String type = reward.getType();
@@ -102,22 +113,39 @@ public class DatabaseInterface extends SQLiteOpenHelper {
         return db.insert(RewardModel.TABLE_REWARD, null, values);
     }
 
-    public Reward getRewardById(int rewardId) {
+    /* TODO: PRIORITY 3: might need to use getLotteryRewards and getUserRewards to differentiate
+                         between rewards owned and rewards available
+                         For example:
+                            I might want to getRewards(username) and getRewards(lotteryType)
+                         */
+
+    public Reward getReward(int rewardId) {
         // TODO: PRIORITY 0
         return null;
     }
 
-    public List<Reward> getRewardsByType(String type) {
+    public List<Reward> getRewards(String type) {
         // TODO: PRIORITY 0
         return null;
     }
 
-    public List<Reward> getUsableRewards(boolean usable) {
+    public List<Reward> getRewards(boolean usable) {
         // TODO: PRIORITY 0
         return null;
     }
 
-    // TODO: PRIORITY 3: this method exists for testing purposes - delete once done
+    // get rewards available to user for a certain lottery type
+    public List<Reward> getRewards(User user, String lotteryType) {
+        // TODO: PRIORITY 0 !t
+        return null;
+    }
+
+    // get rewards owned by user
+    public List<Reward> getRewards(User user) {
+        // TODO: PRIORITY 0 !t the method below doesn't make sense anymore, so steal it and use it here
+        return null;
+    }
+
     public List<Reward> getRewards() {
         List<Reward> rewards = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -143,7 +171,9 @@ public class DatabaseInterface extends SQLiteOpenHelper {
         return rewards;
     }
 
-    public void addRewardToUser(Reward reward, User user) {
+    public long addRewardToUser(Reward reward, User user) {
+        // TODO: PRIORITY 0 !t new column here
+        // TODO: PRIORITY 3: rename method to be more general
         int rewardId = reward.getId();
         int userId = user.getId();
 
@@ -154,7 +184,7 @@ public class DatabaseInterface extends SQLiteOpenHelper {
         values.put(UserModel.COLUMN_REWARD_ID, rewardId);
         values.put(UserModel.COLUMN_REWARD_COUNT, 0);
 
-        db.insert(UserModel.TABLE_USER_REWARDS, null, values);
+        return db.insert(UserModel.TABLE_USER_REWARDS, null, values);
     }
 
     public void removeRewardFromUser(Reward reward, User user) {
@@ -163,6 +193,7 @@ public class DatabaseInterface extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getReadableDatabase();
 
+        // TODO: PRIORITY 3: I'm not a fan of this structure... kinda ugly
         db.delete(UserModel.TABLE_USER_REWARDS,
                 UserModel.COLUMN_USER_ID + " = ? AND " + UserModel.COLUMN_REWARD_ID + " = ?",
                 new String[]{String.valueOf(userId), String.valueOf(rewardId)});
@@ -183,22 +214,38 @@ public class DatabaseInterface extends SQLiteOpenHelper {
         db.execSQL(updateQuery);
     }
 
-    public long createLottery(Lottery lottery) {
-        // TODO: PRIORITY 0
-        return -1;
+    public long createLottery(String lotteryType) {
+        // TODO: PRIORITY 0 !t
+        return 1;
     }
 
-    public Lottery getLotteryById(int id) {
+    public Lottery getLottery(int id) {
         // TODO: PRIORITY 0
         return null;
     }
 
-    public Lottery getLotteryByType(String type) {
+    // return the general lottery with this type
+    public Lottery getLottery(String type) {
+        // TODO: PRIORITY 0 !t
+        return null;
+    }
+
+    public Lottery getLottery(User user, String lotteryType) {
         // TODO: PRIORITY 0
         return null;
     }
 
     public List<Lottery> getLotteries() {
+        // TODO: PRIORITY 0 !t
+        return null;
+    }
+
+    public List<Lottery> getLotteries(String username) {
+        // TODO: PRIORITY 0
+        return null;
+    }
+
+    public List<Lottery> getLotteries(User user) {
         // TODO: PRIORITY 0
         return null;
     }
