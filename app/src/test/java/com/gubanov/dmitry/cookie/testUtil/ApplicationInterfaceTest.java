@@ -13,6 +13,8 @@ import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
+import java.util.List;
+
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
 
@@ -40,7 +42,30 @@ public class ApplicationInterfaceTest {
 
     @Test
     public void testRegisterUserWithLotteries() {
-        // TODO: PRIORITY 0: User should have unique lotteries
+        Context context = RuntimeEnvironment.application.getBaseContext();
+        ApplicationInterface api = new ApplicationInterface(context, true);
+        DatabaseInterface dbi = new DatabaseInterface(context, true);
+
+        String lotteryTypeOne = "daily";
+        String lotteryTypeTwo = "weekly";
+        String lotteryTypeThree = "monthly";
+
+        dbi.createLottery(lotteryTypeOne);
+        dbi.createLottery(lotteryTypeTwo);
+        dbi.createLottery(lotteryTypeThree);
+
+        String username = "Dmitry";
+
+        assertNull(dbi.getUser(username));
+
+        api.register(username);
+
+        List<Reward> rewards;
+
+        rewards = dbi.getRewards(dbi.getUser(username));
+        assertEquals(lotteryTypeOne, rewards.get(0).getType());
+        assertEquals(lotteryTypeTwo, rewards.get(1).getType());
+        assertEquals(lotteryTypeThree, rewards.get(2).getType());
     }
 
     @Test

@@ -25,4 +25,17 @@ public class LotteryModel {
                     + COLUMN_REWARD_ID + " INTEGER NOT NULL,"
                     + "PRIMARY KEY (" + COLUMN_USER_LOTTERY_ID + ", " + COLUMN_REWARD_ID + ")"
                     + ")";
+
+    public static String selectRewards(long userLotteryId) {
+        // TODO: PRIORITY 3: if you select from lottery rewards and filter before doing a left join, it'll be more efficient
+        return "SELECT r." + RewardModel.COLUMN_REWARD_ID + ", "
+                + "r." + RewardModel.COLUMN_WEIGHT + ", "
+                + "r." + RewardModel.COLUMN_TYPE + ", "
+                + "r." + RewardModel.COLUMN_IS_USABLE + ", "
+                + "r." + RewardModel.COLUMN_CONTENT
+                + " FROM " + TABLE_LOTTERY_REWARDS + "AS r"
+                + " LEFT JOIN " + RewardModel.TABLE_REWARD + " AS lr"
+                + " ON r." + RewardModel.COLUMN_REWARD_ID + " = lr." + COLUMN_REWARD_ID
+                + " WHERE " + COLUMN_USER_LOTTERY_ID + " = " + userLotteryId;
+    }
 }

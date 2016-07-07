@@ -77,9 +77,6 @@ public class DatabaseInterfaceTest{
         dbi.createLottery(lotteryType);
         dbi.createLottery(lotteryTypeTwo);
 
-        Lottery lottery = dbi.getLottery(lotteryType);
-        Lottery lotteryTwo = dbi.getLottery(lotteryTypeTwo);
-
         List<Reward> rewards;
 
         rewards = dbi.getRewards(user, lotteryType);
@@ -87,14 +84,14 @@ public class DatabaseInterfaceTest{
         rewards = dbi.getRewards(user, lotteryTypeTwo);
         assertEquals(0, rewards.size());
 
-        dbi.createReward(newOneReward, user, lottery);
+        dbi.createReward(newOneReward, user, lotteryType);
 
         rewards = dbi.getRewards(user, lotteryType);
         assertEquals(1, rewards.size());
         rewards = dbi.getRewards(user, lotteryTypeTwo);
         assertEquals(0, rewards.size());
 
-        dbi.createReward(newTwoReward, user, lotteryTwo);
+        dbi.createReward(newTwoReward, user, lotteryTypeTwo);
 
         rewards = dbi.getRewards(user, lotteryType);
         assertEquals(1, rewards.size());

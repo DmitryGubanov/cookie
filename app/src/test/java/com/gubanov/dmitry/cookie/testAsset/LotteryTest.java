@@ -16,14 +16,14 @@ public class LotteryTest {
         Lottery newLottery = new Lottery("daily");
 
         assertEquals(newLottery.getType(), "daily");
-        assert (newLottery.getPossibleRewards().isEmpty());
+        assertTrue(newLottery.getPossibleRewards().isEmpty());
     }
 
     @Test
     public void testAddPossibleReward() {
         Lottery newLottery = new Lottery("daily");
 
-        assert (newLottery.getPossibleRewards().isEmpty());
+        assertTrue(newLottery.getPossibleRewards().isEmpty());
 
         Reward newReward = new Reward(1, "message", true, "hello");
         Reward anotherNewReward = new Reward(2, "message", true, "hi");

@@ -11,7 +11,7 @@ public class User {
     /**
      * This User's id
      */
-    private int id;
+    private long id;
 
     /**
      * This User's name or username
@@ -29,9 +29,15 @@ public class User {
      * @param name name or username of the User.
      */
     public User(String name) {
-        //this.id = id;
+        this.id = -1;
         this.name = name;
-        this.rewards = new ArrayList<Reward>();
+        this.rewards = new ArrayList<>();
+    }
+
+    public User(long id, String name) {
+        this.id = id;
+        this.name = name;
+        this.rewards = new ArrayList<>();
     }
 
     /**
@@ -39,7 +45,7 @@ public class User {
      *
      * @return this User's id
      */
-    public int getId() {
+    public long getId() {
         return this.id;
     }
 

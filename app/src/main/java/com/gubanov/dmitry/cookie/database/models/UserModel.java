@@ -41,27 +41,38 @@ public class UserModel {
                     + "PRIMARY KEY (" + COLUMN_USER_ID + ", " + COLUMN_LOTTERY_ID + ")"
                     + ")";
 
-    public static String selectUserReward(int userId, int rewardId) {
+    public static String selectUser(String username) {
+        return "SELECT *"
+                + " FROM " + TABLE_USER
+                + " WHERE " + COLUMN_USER_NAME + " = " + username;
+    }
+
+    public static String selectUsers() {
+        return "SELECT *"
+                + " FROM " + TABLE_USER;
+    }
+
+    public static String selectUserReward(long userId, long rewardId) {
         return "SELECT *"
                 + " FROM " + TABLE_USER_REWARDS
                 + " WHERE " + COLUMN_USER_ID + " = " + userId
                 + " AND " + COLUMN_REWARD_ID + " = " + rewardId;
     }
 
-    public static String selectUserRewards(int userId) {
+    public static String selectUserRewards(long userId) {
         return "SELECT *"
                 + " FROM " + TABLE_USER_REWARDS
                 + " WHERE " + COLUMN_USER_ID + " = " + userId;
     }
 
-    public static String setRewardCountForUser(int userId, int rewardId, int value) {
+    public static String setRewardCountForUser(long userId, long rewardId, int value) {
         return "UPDATE " + TABLE_USER_REWARDS
                 + " SET " + COLUMN_REWARD_COUNT + " = " + value
                 + " WHERE " + COLUMN_USER_ID + " = " + userId
                 + " AND " + COLUMN_REWARD_ID + " = " + rewardId;
     }
 
-    public static String updateRewardCountForUser(int userId, int rewardId, int change) {
+    public static String updateRewardCountForUser(long userId, long rewardId, int change) {
         return "UPDATE " + TABLE_USER_REWARDS
                 + " SET " + COLUMN_REWARD_COUNT + " = " + COLUMN_REWARD_COUNT + " + " + change
                 + " WHERE " + COLUMN_USER_ID + " = " + userId

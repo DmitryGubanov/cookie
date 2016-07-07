@@ -15,7 +15,7 @@ public class Lottery {
      */
     private Random rn;
 
-    private int id;
+    private long id;
 
     /**
      * This Lottery's type ("daily", "weekly", etc.)
@@ -44,7 +44,7 @@ public class Lottery {
         this.rewards = new ArrayList<>();
     }
 
-    public int getId() {
+    public long getId() {
         return this.id;
     }
 

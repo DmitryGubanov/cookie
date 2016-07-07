@@ -8,7 +8,7 @@ public class Reward {
     /**
      * This RewardModel's id
      */
-    private int id;
+    private long id;
 
     /**
      * This RewardModel's relative weight, used to determine probability
@@ -60,7 +60,7 @@ public class Reward {
 
     // TODO: PRIORITY 1: will ultimately make it so all rewards have IDs
     // ID will come from DB and ApplicationInterface will make rewards with IDs
-    public Reward(int id, int weight, String type, boolean usable, String content) {
+    public Reward(long id, int weight, String type, boolean usable, String content) {
         this.id = id;
         this.weight = weight; // TODO: PRIORITY 3: should weight be store in db or object or both?
         this.type = type; //TODO: PRIORITY 3: should type be store in db or object or both?
@@ -73,7 +73,7 @@ public class Reward {
      *
      * @return this RewardModel's id
      */
-    public int getId() {
+    public long getId() {
         return this.id;
     }
 

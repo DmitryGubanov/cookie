@@ -69,7 +69,7 @@ public class ApplicationInterface {
 
     private List<Lottery> buildLotteries(User user) {
         // TODO: PRIORITY 1: dunno why I started making this all of a sudden
-        List<Lottery> lotteries = new ArrayList();
+        List<Lottery> lotteries = new ArrayList<>();
 
         for (String lotteryType : lotteryTypes) {
             List<Reward> rewardsForLottery = this.dbi.getRewards(user, lotteryType);
@@ -80,11 +80,10 @@ public class ApplicationInterface {
     }
 
     public long createReward(Reward reward, String username, String lotteryType) {
-        return this.dbi.createReward(
-                reward, this.dbi.getUser(username), this.dbi.getLottery(lotteryType));
+        return this.dbi.createReward(reward, this.dbi.getUser(username), lotteryType);
     }
 
-    public int draw(User user, String lotteryType) {
+    public long draw(User user, String lotteryType) {
         Lottery lottery = new Lottery(lotteryType);
         List<Reward> possibleRewards = dbi.getRewards(user, lotteryType);
 

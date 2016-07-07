@@ -70,8 +70,16 @@ public class DatabaseInterface extends SQLiteOpenHelper {
     }
 
     public long createUser(String username) {
-        // TODO: PRIORITY 0 !t
-        return 1;
+        this.db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(UserModel.COLUMN_USER_NAME, username);
+
+        long returnId = this.db.insert(UserModel.TABLE_USER, null, values);
+
+        this.db.close();
+
+        return returnId;
     }
 
     public User getUser(int userId) {
@@ -80,29 +88,86 @@ public class DatabaseInterface extends SQLiteOpenHelper {
     }
 
     public User getUser(String username) {
-        // TODO: PRIORITY 0 !t
-        return null;
+        User user;
+        String selectQuery = UserModel.selectUser(username);
+
+        this.db = this.getReadableDatabase();
+
+        Log.e(LOG, selectQuery);
+
+        Cursor cursor = this.db.rawQuery(selectQuery, null);
+        if (!cursor.moveToFirst()) {
+            return null;
+        }
+
+        do {
+            user = new User(
+                    cursor.getInt(cursor.getColumnIndex(UserModel.COLUMN_USER_ID)),
+                    cursor.getString(cursor.getColumnIndex(UserModel.COLUMN_USER_NAME))
+            );
+        } while (cursor.moveToNext());
+
+        cursor.close();
+        this.db.close();
+
+        return user;
     }
 
     // get all users - used for testing purposes, mainly
     public List<User> getUsers() {
-        // TODO: PRIORITY 0 !t
-        return null;
+        List<User> users = new ArrayList<>();
+        String selectQuery = UserModel.selectUsers();
+
+        this.db = getReadableDatabase();
+
+        Log.e(LOG, selectQuery);
+
+        Cursor cursor = this.db.rawQuery(selectQuery, null);
+        if (!cursor.moveToFirst()) {
+            return users;
+        }
+
+        do {
+            User user = new User(
+                    cursor.getLong(cursor.getColumnIndex(UserModel.COLUMN_USER_ID)),
+                    cursor.getString(cursor.getColumnIndex(UserModel.COLUMN_USER_NAME))
+            );
+            users.add(user);
+        } while (cursor.moveToNext());
+
+        cursor.close();
+        this.db.close();
+
+        return users;
     }
 
-    public long createReward(Reward reward, User user, Lottery lottery) {
-        // TODO: PRIORITY 0!t Steal method below and then remove? one below
-        return 0;
+    public long createReward(Reward reward, User user, String lotteryType) {
+        long userLotteryId = getLottery(user, lotteryType).getId();
+        long rewardId = createReward(reward);
+        if (rewardId == -1) {
+            return -1;
+        }
+
+        this.db = getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(LotteryModel.COLUMN_USER_LOTTERY_ID, userLotteryId);
+        values.put(LotteryModel.COLUMN_REWARD_ID, rewardId);
+
+        long returnId = this.db.insert(LotteryModel.TABLE_LOTTERY_REWARDS, null, values);
+
+        this.db.close();
+
+        return returnId;
     }
 
-    // TODO: PRIORITY 0: check validity of this method
     public long createReward(Reward reward) {
         int weight = reward.getWeight();
         String type = reward.getType();
         int usable = reward.isUsable() ? 1 : 0;
         String content = reward.getContent();
 
-        SQLiteDatabase db = this.getWritableDatabase();
+        this.db = getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(RewardModel.COLUMN_WEIGHT, weight);
@@ -110,7 +175,11 @@ public class DatabaseInterface extends SQLiteOpenHelper {
         values.put(RewardModel.COLUMN_IS_USABLE, usable);
         values.put(RewardModel.COLUMN_CONTENT, content);
 
-        return db.insert(RewardModel.TABLE_REWARD, null, values);
+        long returnId = this.db.insert(RewardModel.TABLE_REWARD, null, values);
+
+        this.db.close();
+
+        return returnId;
     }
 
     /* TODO: PRIORITY 3: might need to use getLotteryRewards and getUserRewards to differentiate
@@ -136,8 +205,35 @@ public class DatabaseInterface extends SQLiteOpenHelper {
 
     // get rewards available to user for a certain lottery type
     public List<Reward> getRewards(User user, String lotteryType) {
-        // TODO: PRIORITY 0 !t
-        return null;
+        List<Reward> rewards = new ArrayList<>();
+        long userLotteryId = getLottery(user, lotteryType).getId();
+
+        this.db = getReadableDatabase();
+
+        String selectQuery = LotteryModel.selectRewards(userLotteryId);
+
+        Log.e(LOG, selectQuery);
+
+        Cursor cursor = this.db.rawQuery(selectQuery, null);
+        if (!cursor.moveToFirst()) {
+            return rewards;
+        }
+
+        do {
+            Reward reward = new Reward(
+                    cursor.getLong(cursor.getColumnIndex(RewardModel.COLUMN_REWARD_ID)),
+                    cursor.getInt(cursor.getColumnIndex(RewardModel.COLUMN_WEIGHT)),
+                    cursor.getString(cursor.getColumnIndex(RewardModel.COLUMN_TYPE)),
+                    cursor.getInt(cursor.getColumnIndex(RewardModel.COLUMN_IS_USABLE)) == 1,
+                    cursor.getString(cursor.getColumnIndex(RewardModel.COLUMN_CONTENT))
+            );
+            rewards.add(reward);
+        } while (cursor.moveToNext());
+
+        cursor.close();
+        this.db.close();
+
+        return rewards;
     }
 
     // get rewards owned by user
@@ -148,25 +244,29 @@ public class DatabaseInterface extends SQLiteOpenHelper {
 
     public List<Reward> getRewards() {
         List<Reward> rewards = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
+
+        this.db = getReadableDatabase();
 
         String selectQuery = RewardModel.SELECT_REWARDS;
 
         Log.e(LOG, selectQuery);
 
-        Cursor c = db.rawQuery(selectQuery, null);
-        if (!c.moveToFirst()) {
+        Cursor cursor = this.db.rawQuery(selectQuery, null);
+        if (!cursor.moveToFirst()) {
             return rewards;
         }
 
         do {
             rewards.add(new Reward(
-                    c.getInt(c.getColumnIndex(RewardModel.COLUMN_REWARD_ID)),
-                    c.getInt(c.getColumnIndex(RewardModel.COLUMN_WEIGHT)),
-                    c.getString(c.getColumnIndex(RewardModel.COLUMN_TYPE)),
-                    c.getInt(c.getColumnIndex(RewardModel.COLUMN_IS_USABLE)) == 1,
-                    c.getString(c.getColumnIndex(RewardModel.COLUMN_CONTENT))));
-        } while (c.moveToNext());
+                    cursor.getInt(cursor.getColumnIndex(RewardModel.COLUMN_REWARD_ID)),
+                    cursor.getInt(cursor.getColumnIndex(RewardModel.COLUMN_WEIGHT)),
+                    cursor.getString(cursor.getColumnIndex(RewardModel.COLUMN_TYPE)),
+                    cursor.getInt(cursor.getColumnIndex(RewardModel.COLUMN_IS_USABLE)) == 1,
+                    cursor.getString(cursor.getColumnIndex(RewardModel.COLUMN_CONTENT))));
+        } while (cursor.moveToNext());
+
+        cursor.close();
+        this.db.close();
 
         return rewards;
     }
@@ -174,8 +274,8 @@ public class DatabaseInterface extends SQLiteOpenHelper {
     public long addRewardToUser(Reward reward, User user) {
         // TODO: PRIORITY 0 !t new column here
         // TODO: PRIORITY 3: rename method to be more general
-        int rewardId = reward.getId();
-        int userId = user.getId();
+        long rewardId = reward.getId();
+        long userId = user.getId();
 
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -188,8 +288,8 @@ public class DatabaseInterface extends SQLiteOpenHelper {
     }
 
     public void removeRewardFromUser(Reward reward, User user) {
-        int rewardId = reward.getId();
-        int userId = user.getId();
+        long rewardId = reward.getId();
+        long userId = user.getId();
 
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -231,7 +331,7 @@ public class DatabaseInterface extends SQLiteOpenHelper {
     }
 
     public Lottery getLottery(User user, String lotteryType) {
-        // TODO: PRIORITY 0
+        // TODO: PRIORITY 0 !t
         return null;
     }
 
@@ -241,7 +341,7 @@ public class DatabaseInterface extends SQLiteOpenHelper {
     }
 
     public List<Lottery> getLotteries(String username) {
-        // TODO: PRIORITY 0
+        // TODO: PRIORITY 0 !t
         return null;
     }
 
