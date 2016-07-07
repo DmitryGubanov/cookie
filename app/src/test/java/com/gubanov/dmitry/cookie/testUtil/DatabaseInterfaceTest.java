@@ -65,8 +65,6 @@ public class DatabaseInterfaceTest{
         DatabaseInterface dbi = new DatabaseInterface(context, true);
 
         String username = "Dmitry";
-        dbi.createUser(username);
-        User user = dbi.getUser(username);
 
         Reward newOneReward = new Reward(4, "message", false, "hello");
         Reward newTwoReward = new Reward(7, "task", true, "do this");
@@ -79,35 +77,35 @@ public class DatabaseInterfaceTest{
 
         List<Reward> rewards;
 
-        rewards = dbi.getRewards(user, lotteryType);
+        rewards = dbi.getRewards(username, lotteryType);
         assertEquals(0, rewards.size());
-        rewards = dbi.getRewards(user, lotteryTypeTwo);
+        rewards = dbi.getRewards(username, lotteryTypeTwo);
         assertEquals(0, rewards.size());
 
-        dbi.createReward(newOneReward, user, lotteryType);
+        dbi.createReward(newOneReward, username, lotteryType);
 
-        rewards = dbi.getRewards(user, lotteryType);
+        rewards = dbi.getRewards(username, lotteryType);
         assertEquals(1, rewards.size());
-        rewards = dbi.getRewards(user, lotteryTypeTwo);
+        rewards = dbi.getRewards(username, lotteryTypeTwo);
         assertEquals(0, rewards.size());
 
-        dbi.createReward(newTwoReward, user, lotteryTypeTwo);
+        dbi.createReward(newTwoReward, username, lotteryTypeTwo);
 
-        rewards = dbi.getRewards(user, lotteryType);
+        rewards = dbi.getRewards(username, lotteryType);
         assertEquals(1, rewards.size());
-        rewards = dbi.getRewards(user, lotteryTypeTwo);
+        rewards = dbi.getRewards(username, lotteryTypeTwo);
         assertEquals(1, rewards.size());
 
         Reward oneReward;
         Reward twoReward;
 
-        oneReward = dbi.getRewards(user, lotteryType).get(0);
+        oneReward = dbi.getRewards(username, lotteryType).get(0);
         assertEquals(newOneReward.getWeight(), oneReward.getWeight());
         assertEquals(newOneReward.getType(), oneReward.getType());
         assertEquals(newOneReward.isUsable(), oneReward.isUsable());
         assertEquals(newOneReward.getContent(), oneReward.getContent());
 
-        twoReward = dbi.getRewards(user, lotteryTypeTwo).get(0);
+        twoReward = dbi.getRewards(username, lotteryTypeTwo).get(0);
         assertEquals(newTwoReward.getWeight(), twoReward.getWeight());
         assertEquals(newTwoReward.getType(), twoReward.getType());
         assertEquals(newTwoReward.isUsable(), twoReward.isUsable());
@@ -122,7 +120,6 @@ public class DatabaseInterfaceTest{
 
         String username = "Dmitry";
         dbi.createUser(username);
-        User user = dbi.getUser(username);
 
         Reward newOneReward = new Reward(4, "message", false, "hello");
         Reward newTwoReward = new Reward(7, "task", true, "do this");
@@ -131,21 +128,21 @@ public class DatabaseInterfaceTest{
         Reward oneReward;
         Reward twoReward;
 
-        rewards = dbi.getRewards(user);
+        rewards = dbi.getRewards(username);
         assertEquals(0, rewards.size());
 
-        dbi.addRewardToUser(newOneReward, user);
+        dbi.addRewardToUser(newOneReward, username);
 
-        rewards = dbi.getRewards(user);
+        rewards = dbi.getRewards(username);
         assertEquals(1, rewards.size());
 
-        dbi.addRewardToUser(newTwoReward, user);
+        dbi.addRewardToUser(newTwoReward, username);
 
-        rewards = dbi.getRewards(user);
+        rewards = dbi.getRewards(username);
         assertEquals(2, rewards.size());
 
-        oneReward = dbi.getRewards(user).get(0);
-        twoReward = dbi.getRewards(user).get(1);
+        oneReward = dbi.getRewards(username).get(0);
+        twoReward = dbi.getRewards(username).get(1);
         assertEquals(newOneReward.getWeight(), oneReward.getWeight());
         assertEquals(newOneReward.getType(), oneReward.getType());
         assertEquals(newOneReward.isUsable(), oneReward.isUsable());

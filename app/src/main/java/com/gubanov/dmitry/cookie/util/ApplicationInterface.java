@@ -45,7 +45,7 @@ public class ApplicationInterface {
         return 0;
     }
 
-    private void createLotteries(String user) {
+    private void createLotteries(String username) {
         // TODO: PRIORITY 0: register should also create lotteries for the user
     }
 
@@ -55,7 +55,7 @@ public class ApplicationInterface {
             return null;
         }
 
-        List<Reward> rewards = this.dbi.getRewards(user);
+        List<Reward> rewards = this.dbi.getRewards(username);
         if (rewards == null) {
             return user;
         }
@@ -72,7 +72,7 @@ public class ApplicationInterface {
         List<Lottery> lotteries = new ArrayList<>();
 
         for (String lotteryType : lotteryTypes) {
-            List<Reward> rewardsForLottery = this.dbi.getRewards(user, lotteryType);
+            List<Reward> rewardsForLottery = this.dbi.getRewards(user.getName(), lotteryType);
             Lottery newLottery = new Lottery(lotteryType);
         }
 
@@ -80,12 +80,12 @@ public class ApplicationInterface {
     }
 
     public long createReward(Reward reward, String username, String lotteryType) {
-        return this.dbi.createReward(reward, this.dbi.getUser(username), lotteryType);
+        return this.dbi.createReward(reward, username, lotteryType);
     }
 
     public long draw(User user, String lotteryType) {
         Lottery lottery = new Lottery(lotteryType);
-        List<Reward> possibleRewards = dbi.getRewards(user, lotteryType);
+        List<Reward> possibleRewards = dbi.getRewards(user.getName(), lotteryType);
 
         if (possibleRewards == null) {
             return -1;
@@ -97,9 +97,9 @@ public class ApplicationInterface {
 
         Reward reward = lottery.generateReward();
 
-        // TODO: PRIORITY 1: check if user already has this reward and update number
+        // TODO: PRIORITY 0 !t: check if user already has this reward and update number
 
-        if (dbi.addRewardToUser(reward, user) == -1) {
+        if (dbi.addRewardToUser(reward, user.getName()) == -1) {
             return -1;
         }
         user.addReward(reward);
@@ -117,10 +117,9 @@ public class ApplicationInterface {
     }
 
     public void useReward(User user, Reward reward) {
-        user.useReward(reward);
-
-        // TODO: PRIORITY 1: check if user has one or more of this reward and update the number
-
+        // TODO: PRIORITY 0 !t: check if user has one or more of this reward and update the number
         this.dbi.removeRewardFromUser(reward, user);
+
+        user.useReward(reward);
     }
 }

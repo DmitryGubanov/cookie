@@ -60,9 +60,22 @@ public class UserModel {
     }
 
     public static String selectUserRewards(long userId) {
-        return "SELECT *"
-                + " FROM " + TABLE_USER_REWARDS
-                + " WHERE " + COLUMN_USER_ID + " = " + userId;
+        // TODO: PRIORITY 3: query can be more efficient
+        return "SELECT r." + RewardModel.COLUMN_REWARD_ID + ","
+                + " r." + RewardModel.COLUMN_WEIGHT + ","
+                + " r." + RewardModel.COLUMN_TYPE + ","
+                + " r." + RewardModel.COLUMN_IS_USABLE + ","
+                + " r." + RewardModel.COLUMN_CONTENT + ","
+                + " ur." + COLUMN_REWARD_COUNT
+                + " FROM " + TABLE_USER_REWARDS + " AS ur"
+                + " LEFT JOIN " + RewardModel.TABLE_REWARD + " AS r"
+                + " ON ur." + COLUMN_REWARD_ID + " = r." + RewardModel.COLUMN_REWARD_ID
+                + " WHERE ur." + COLUMN_USER_ID + " = " + userId;
+    }
+
+    public static String selectUserRewards(String username) {
+        // TODO: PRIORITY 3: this would be kinda useful
+        return "";
     }
 
     public static String setRewardCountForUser(long userId, long rewardId, int value) {

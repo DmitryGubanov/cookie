@@ -62,7 +62,7 @@ public class ApplicationInterfaceTest {
 
         List<Reward> rewards;
 
-        rewards = dbi.getRewards(dbi.getUser(username));
+        rewards = dbi.getRewards(username);
         assertEquals(lotteryTypeOne, rewards.get(0).getType());
         assertEquals(lotteryTypeTwo, rewards.get(1).getType());
         assertEquals(lotteryTypeThree, rewards.get(2).getType());
@@ -98,36 +98,36 @@ public class ApplicationInterfaceTest {
         api.register(username);
         api.register(usernameTwo);
 
-        assertEquals(0, dbi.getRewards(dbi.getUser(username), lotteryType).size());
-        assertEquals(0, dbi.getRewards(dbi.getUser(usernameTwo), lotteryType).size());
+        assertEquals(0, dbi.getRewards(username, lotteryType).size());
+        assertEquals(0, dbi.getRewards(usernameTwo, lotteryType).size());
 
         api.createReward(newReward, username, lotteryType);
 
-        assertEquals(1, dbi.getRewards(dbi.getUser(username), lotteryType).size());
-        assertEquals(0, dbi.getRewards(dbi.getUser(usernameTwo), lotteryType).size());
+        assertEquals(1, dbi.getRewards(username, lotteryType).size());
+        assertEquals(0, dbi.getRewards(usernameTwo, lotteryType).size());
         assertEquals(newReward.getWeight(),
-                dbi.getRewards(dbi.getUser(username), lotteryType).get(0).getWeight());
+                dbi.getRewards(username, lotteryType).get(0).getWeight());
         assertEquals(newReward.getType(),
-                dbi.getRewards(dbi.getUser(username), lotteryType).get(0).getType());
+                dbi.getRewards(username, lotteryType).get(0).getType());
         assertEquals(newReward.isUsable(),
-                dbi.getRewards(dbi.getUser(username), lotteryType).get(0).isUsable());
+                dbi.getRewards(username, lotteryType).get(0).isUsable());
         assertEquals(newReward.getContent(),
-                dbi.getRewards(dbi.getUser(username), lotteryType).get(0).getContent());
+                dbi.getRewards(username, lotteryType).get(0).getContent());
 
         api.createReward(newRewardTwo, usernameTwo, lotteryType);
 
-        assertEquals(1, dbi.getRewards(dbi.getUser(username), lotteryType).size());
-        assertEquals(1, dbi.getRewards(dbi.getUser(usernameTwo), lotteryType).size());
+        assertEquals(1, dbi.getRewards(username, lotteryType).size());
+        assertEquals(1, dbi.getRewards(usernameTwo, lotteryType).size());
         assertEquals(newRewardTwo.getWeight(),
-                dbi.getRewards(dbi.getUser(usernameTwo), lotteryType).get(0).getWeight());
+                dbi.getRewards(usernameTwo, lotteryType).get(0).getWeight());
         assertEquals(newRewardTwo.getType(),
-                dbi.getRewards(dbi.getUser(usernameTwo), lotteryType).get(0).getType());
+                dbi.getRewards(usernameTwo, lotteryType).get(0).getType());
         assertEquals(newRewardTwo.isUsable(),
-                dbi.getRewards(dbi.getUser(usernameTwo), lotteryType).get(0).isUsable());
+                dbi.getRewards(usernameTwo, lotteryType).get(0).isUsable());
         assertEquals(newRewardTwo.getContent(),
-                dbi.getRewards(dbi.getUser(usernameTwo), lotteryType).get(0).getContent());
+                dbi.getRewards(usernameTwo, lotteryType).get(0).getContent());
 
-        assertEquals(0, dbi.getRewards(dbi.getUser(usernameTwo), lotteryTypeTwo).size());
+        assertEquals(0, dbi.getRewards(usernameTwo, lotteryTypeTwo).size());
     }
 
     @Test
@@ -145,20 +145,20 @@ public class ApplicationInterfaceTest {
         api.register(username);
         api.register(usernameTwo);
 
-        assertEquals(0, dbi.getRewards(dbi.getUser(username)).size());
-        assertEquals(0, dbi.getRewards(dbi.getUser(usernameTwo)).size());
+        assertEquals(0, dbi.getRewards(username).size());
+        assertEquals(0, dbi.getRewards(usernameTwo).size());
 
         api.createReward(newReward, username, lotteryType);
         api.createReward(newRewardTwo, usernameTwo, lotteryType);
         api.draw(dbi.getUser(username), lotteryType);
 
-        assertEquals(1, dbi.getRewards(dbi.getUser(username)).size());
-        assertEquals(0, dbi.getRewards(dbi.getUser(usernameTwo)).size());
+        assertEquals(1, dbi.getRewards(username).size());
+        assertEquals(0, dbi.getRewards(usernameTwo).size());
 
         api.draw(dbi.getUser(usernameTwo), lotteryType);
 
-        assertEquals(1, dbi.getRewards(dbi.getUser(username)).size());
-        assertEquals(1, dbi.getRewards(dbi.getUser(usernameTwo)).size());
+        assertEquals(1, dbi.getRewards(username).size());
+        assertEquals(1, dbi.getRewards(usernameTwo).size());
     }
 
     @Test
@@ -175,10 +175,10 @@ public class ApplicationInterfaceTest {
         api.createReward(newReward, username, lotteryType);
         api.draw(dbi.getUser(username), lotteryType);
 
-        assertEquals(1, dbi.getRewards(dbi.getUser(username)).size());
+        assertEquals(1, dbi.getRewards(username).size());
 
-        api.useReward(dbi.getUser(username), dbi.getRewards(dbi.getUser(username)).get(0));
+        api.useReward(dbi.getUser(username), dbi.getRewards(username).get(0));
 
-        assertEquals(0, dbi.getRewards(dbi.getUser(username)).size());
+        assertEquals(0, dbi.getRewards(username).size());
     }
 }
