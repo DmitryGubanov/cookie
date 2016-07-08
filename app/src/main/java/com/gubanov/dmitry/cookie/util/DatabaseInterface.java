@@ -14,8 +14,11 @@ import com.gubanov.dmitry.cookie.database.models.LotteryModel;
 import com.gubanov.dmitry.cookie.database.models.RewardModel;
 import com.gubanov.dmitry.cookie.database.models.UserModel;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 // TODO: PRIORITY 1: rename methods to getUserRewards/getLotteryRewards (for example)
 
@@ -82,11 +85,6 @@ public class DatabaseInterface extends SQLiteOpenHelper {
         return returnId;
     }
 
-    public User getUser(int userId) {
-        // TODO: PRIORITY 3
-        return null;
-    }
-
     public User getUser(String username) {
         User user;
         String selectQuery = UserModel.selectUser(username);
@@ -102,7 +100,7 @@ public class DatabaseInterface extends SQLiteOpenHelper {
 
         do {
             user = new User(
-                    cursor.getInt(cursor.getColumnIndex(UserModel.COLUMN_USER_ID)),
+                    cursor.getLong(cursor.getColumnIndex(UserModel.COLUMN_USER_ID)),
                     cursor.getString(cursor.getColumnIndex(UserModel.COLUMN_USER_NAME))
             );
         } while (cursor.moveToNext());
@@ -188,16 +186,6 @@ public class DatabaseInterface extends SQLiteOpenHelper {
                             I might want to getRewards(username) and getRewards(lotteryType)
                          */
 
-    public Reward getReward(int rewardId) {
-        // TODO: PRIORITY 0
-        return null;
-    }
-
-    public List<Reward> getRewards(boolean usable) {
-        // TODO: PRIORITY 0
-        return null;
-    }
-
     // get rewards available to user for a certain lottery type
     public List<Reward> getRewards(String username, String lotteryType) {
         List<Reward> rewards = new ArrayList<>();
@@ -247,7 +235,7 @@ public class DatabaseInterface extends SQLiteOpenHelper {
 
         do {
             rewards.add(new Reward(
-                    cursor.getInt(cursor.getColumnIndex(RewardModel.COLUMN_REWARD_ID)),
+                    cursor.getLong(cursor.getColumnIndex(RewardModel.COLUMN_REWARD_ID)),
                     cursor.getInt(cursor.getColumnIndex(RewardModel.COLUMN_WEIGHT)),
                     cursor.getString(cursor.getColumnIndex(RewardModel.COLUMN_TYPE)),
                     cursor.getInt(cursor.getColumnIndex(RewardModel.COLUMN_IS_USABLE)) == 1,
@@ -281,7 +269,7 @@ public class DatabaseInterface extends SQLiteOpenHelper {
 
             for (int i = 0; i < rewardCount; i++) {
                 rewards.add(new Reward(
-                        cursor.getInt(cursor.getColumnIndex(RewardModel.COLUMN_REWARD_ID)),
+                        cursor.getLong(cursor.getColumnIndex(RewardModel.COLUMN_REWARD_ID)),
                         cursor.getInt(cursor.getColumnIndex(RewardModel.COLUMN_WEIGHT)),
                         cursor.getString(cursor.getColumnIndex(RewardModel.COLUMN_TYPE)),
                         cursor.getInt(cursor.getColumnIndex(RewardModel.COLUMN_IS_USABLE)) == 1,
@@ -297,7 +285,6 @@ public class DatabaseInterface extends SQLiteOpenHelper {
     }
 
     public long addRewardToUser(Reward reward, String username) {
-        // TODO: PRIORITY 0 !t new column here
         // TODO: PRIORITY 3: rename method to be more general
         long rewardId = reward.getId();
         long userId = getUser(username).getId();
@@ -307,7 +294,7 @@ public class DatabaseInterface extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(UserModel.COLUMN_USER_ID, userId);
         values.put(UserModel.COLUMN_REWARD_ID, rewardId);
-        values.put(UserModel.COLUMN_REWARD_COUNT, 0);
+        values.put(UserModel.COLUMN_REWARD_COUNT, 1);
 
         long returnId = db.insert(UserModel.TABLE_USER_REWARDS, null, values);
 
@@ -334,48 +321,162 @@ public class DatabaseInterface extends SQLiteOpenHelper {
             return;
         }
 
-        SQLiteDatabase db = this.getWritableDatabase();
+        this.db = this.getWritableDatabase();
         String updateQuery =
                 UserModel.updateRewardCountForUser(user.getId(), reward.getId(), change);
 
         Log.e(LOG, updateQuery);
 
-        db.execSQL(updateQuery);
+        this.db.execSQL(updateQuery);
+
+        this.db.close();
     }
 
+    // creates a general lottery
     public long createLottery(String lotteryType) {
-        // TODO: PRIORITY 0 !t
-        return 1;
+        this.db = getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(LotteryModel.COLUMN_TYPE, lotteryType);
+
+        long returnId = this.db.insert(LotteryModel.TABLE_LOTTERY, null, values);
+
+        this.db.close();
+
+        return returnId;
     }
 
-    public Lottery getLottery(int id) {
-        // TODO: PRIORITY 0
-        return null;
+    // creates a specific lottery for a user
+    public long createLottery(String username, String lotteryType) {
+        // TODO: PRIORITY 0 !t
+        long userId = getUser(username).getId();
+        long lotteryId = getLottery(lotteryType).getId();
+
+        this.db = getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(UserModel.COLUMN_USER_ID, userId);
+        values.put(UserModel.COLUMN_LOTTERY_ID, lotteryId);
+        values.put(UserModel.COLUMN_DATE_AVAILABLE,
+                new SimpleDateFormat("yyyy-MM-dd", Locale.CANADA).format(new Date()));
+
+        long returnId = this.db.insert(UserModel.TABLE_USER_LOTTERIES, null, values);
+
+        this.db.close();
+
+        return returnId;
     }
 
-    // return the general lottery with this type
-    public Lottery getLottery(String type) {
-        // TODO: PRIORITY 0 !t
-        return null;
+    // get the general lottery with this type
+    public Lottery getLottery(String lotteryType) {
+        Lottery lottery;
+
+        this.db = getReadableDatabase();
+
+        String selectQuery = LotteryModel.selectLottery(lotteryType);
+
+        Log.e(LOG, selectQuery);
+
+        Cursor cursor = this.db.rawQuery(selectQuery, null);
+        if (!cursor.moveToFirst()) {
+            return null;
+        }
+
+        do {
+            lottery = new Lottery(
+                    cursor.getLong(cursor.getColumnIndex(LotteryModel.COLUMN_LOTTERY_ID)),
+                    cursor.getString(cursor.getColumnIndex(LotteryModel.COLUMN_TYPE))
+            );
+        } while (cursor.moveToNext());
+
+        cursor.close();
+        this.db.close();
+
+        return lottery;
     }
 
-    public Lottery getLottery(String user, String lotteryType) {
-        // TODO: PRIORITY 0 !t
-        return null;
+    // get specific lottery belonging to user
+    public Lottery getLottery(String username, String lotteryType) {
+        // TODO: PRIORITY 1: handle date
+        Lottery lottery;
+        long userId = getUser(username).getId();
+
+        this.db = getReadableDatabase();
+
+        String selectQuery = UserModel.selectUserLottery(userId, lotteryType);
+
+        Log.e(LOG, selectQuery);
+
+        Cursor cursor = this.db.rawQuery(selectQuery, null);
+        if (!cursor.moveToFirst()) {
+            return null;
+        }
+
+        do {
+            lottery = new Lottery(
+                    cursor.getLong(cursor.getColumnIndex(UserModel.COLUMN_USER_LOTTERY_ID)),
+                    cursor.getString(cursor.getColumnIndex(LotteryModel.COLUMN_TYPE))
+            );
+        } while (cursor.moveToNext());
+
+        cursor.close();
+        this.db.close();
+
+        return lottery;
     }
 
     public List<Lottery> getLotteries() {
-        // TODO: PRIORITY 0 !t
-        return null;
+        List<Lottery> lotteries = new ArrayList<>();
+
+        this.db = getReadableDatabase();
+
+        String selectQuery = LotteryModel.selectLotteries();
+
+        Log.e(LOG, selectQuery);
+
+        Cursor cursor = this.db.rawQuery(selectQuery, null);
+        if (!cursor.moveToFirst()) {
+            return lotteries;
+        }
+
+        do {
+            lotteries.add(new Lottery(
+                    cursor.getLong(cursor.getColumnIndex(LotteryModel.COLUMN_LOTTERY_ID)),
+                    cursor.getString(cursor.getColumnIndex(LotteryModel.COLUMN_TYPE))
+            ));
+        } while (cursor.moveToNext());
+
+        cursor.close();
+        this.db.close();
+
+        return lotteries;
     }
 
     public List<Lottery> getLotteries(String username) {
-        // TODO: PRIORITY 0 !t
-        return null;
-    }
+        List<Lottery> lotteries = new ArrayList<>();
+        long userId = getUser(username).getId();
 
-    public List<Lottery> getLotteries(User user) {
-        // TODO: PRIORITY 0
-        return null;
+        this.db = getReadableDatabase();
+
+        String selectQuery = UserModel.selectUserLotteries(userId);
+
+        Log.e(LOG, selectQuery);
+
+        Cursor cursor = this.db.rawQuery(selectQuery, null);
+        if (!cursor.moveToFirst()) {
+            return lotteries;
+        }
+
+        do {
+            lotteries.add(new Lottery(
+                    cursor.getLong(cursor.getColumnIndex(UserModel.COLUMN_USER_LOTTERY_ID)),
+                    cursor.getString(cursor.getColumnIndex(LotteryModel.COLUMN_TYPE))
+            ));
+        } while (cursor.moveToNext());
+
+        cursor.close();
+        this.db.close();
+
+        return lotteries;
     }
 }

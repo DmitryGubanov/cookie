@@ -9,7 +9,7 @@ public class RewardModel {
 
     public static final String COLUMN_REWARD_ID = "reward_id";
     public static final String COLUMN_WEIGHT = "weight";
-    public static final String COLUMN_TYPE = "type";
+    public static final String COLUMN_TYPE = "reward_type";
     public static final String COLUMN_IS_USABLE = "is_usable";
     public static final String COLUMN_CONTENT = "content";
 
@@ -23,5 +23,6 @@ public class RewardModel {
                     + "CHECK (" + COLUMN_IS_USABLE + " IN (0, 1))"
                     + ")";
 
+    // TODO: PRIORITY 3: make this a method
     public static final String SELECT_REWARDS = "SELECT * FROM " + TABLE_REWARD;
 }

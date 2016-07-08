@@ -34,11 +34,11 @@ public class UserModel {
 
     public static final String CREATE_TABLE_USER_LOTTERIES =
             "CREATE TABLE " + TABLE_USER_LOTTERIES + "("
+                    + COLUMN_USER_LOTTERY_ID + " PRIMARY KEY AUTOINCREMENT INTEGER NOT NULL,"
                     + COLUMN_USER_ID + " INTEGER NOT NULL,"
                     + COLUMN_LOTTERY_ID + " INTEGER NOT NULL,"
-                    + COLUMN_USER_LOTTERY_ID + " INTEGER NOT NULL,"
                     + COLUMN_DATE_AVAILABLE + " DATE NOT NULL,"
-                    + "PRIMARY KEY (" + COLUMN_USER_ID + ", " + COLUMN_LOTTERY_ID + ")"
+                    + "UNIQUE (" + COLUMN_USER_ID + ", " + COLUMN_LOTTERY_ID + ")"
                     + ")";
 
     public static String selectUser(String username) {
@@ -90,5 +90,24 @@ public class UserModel {
                 + " SET " + COLUMN_REWARD_COUNT + " = " + COLUMN_REWARD_COUNT + " + " + change
                 + " WHERE " + COLUMN_USER_ID + " = " + userId
                 + " AND " + COLUMN_REWARD_ID + " = " + rewardId;
+    }
+
+    public static String selectUserLottery(long userId, String lotteryType) {
+        return "SELECT ul." + COLUMN_USER_LOTTERY_ID + ","
+                + " l." + RewardModel.COLUMN_WEIGHT + ","
+                + " FROM " + TABLE_USER_LOTTERIES + " AS ul"
+                + " LEFT JOIN " + LotteryModel.TABLE_LOTTERY + " AS l"
+                + " ON ul." + COLUMN_LOTTERY_ID + " = l." + LotteryModel.COLUMN_LOTTERY_ID
+                + " WHERE ul." + COLUMN_USER_ID + " = " + userId
+                + " AND l." + LotteryModel.COLUMN_TYPE + " = " + lotteryType;
+    }
+
+    public static String selectUserLotteries(long userId) {
+        return "SELECT ul." + COLUMN_USER_LOTTERY_ID + ","
+                + " l." + RewardModel.COLUMN_WEIGHT + ","
+                + " FROM " + TABLE_USER_LOTTERIES + " AS ul"
+                + " LEFT JOIN " + LotteryModel.TABLE_LOTTERY + " AS l"
+                + " ON ul." + COLUMN_LOTTERY_ID + " = l." + LotteryModel.COLUMN_LOTTERY_ID
+                + " WHERE ul." + COLUMN_USER_ID + " = " + userId;
     }
 }

@@ -11,7 +11,7 @@ public class LotteryModel {
     public static final String COLUMN_LOTTERY_ID = "lottery_id";
     public static final String COLUMN_USER_LOTTERY_ID = "user_lottery_id";
     public static final String COLUMN_REWARD_ID = "reward_id";
-    public static final String COLUMN_TYPE = "type";
+    public static final String COLUMN_TYPE = "lottery_type";
 
     public static final String CREATE_TABLE_LOTTERY =
             "CREATE TABLE " + TABLE_LOTTERY + "("
@@ -25,6 +25,17 @@ public class LotteryModel {
                     + COLUMN_REWARD_ID + " INTEGER NOT NULL,"
                     + "PRIMARY KEY (" + COLUMN_USER_LOTTERY_ID + ", " + COLUMN_REWARD_ID + ")"
                     + ")";
+
+    public static String selectLottery(String lotteryType) {
+        return "SELECT *"
+                + " FROM " + TABLE_LOTTERY
+                + " WHERE " + COLUMN_TYPE + " = " + lotteryType;
+    }
+
+    public static String selectLotteries() {
+        return "SELECT *"
+                + " FROM " + TABLE_LOTTERY;
+    }
 
     public static String selectRewards(long userLotteryId) {
         // TODO: PRIORITY 3: if you select from lottery rewards and filter before doing a left join, it'll be more efficient

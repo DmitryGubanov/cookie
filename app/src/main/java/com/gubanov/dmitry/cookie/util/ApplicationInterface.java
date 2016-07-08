@@ -46,7 +46,11 @@ public class ApplicationInterface {
     }
 
     private void createLotteries(String username) {
-        // TODO: PRIORITY 0: register should also create lotteries for the user
+        List<Lottery> availableLotteries = this.dbi.getLotteries();
+
+        for (Lottery availableLottery : availableLotteries) {
+            this.dbi.createLottery(username, availableLottery.getType());
+        }
     }
 
     public User login(String username) {
@@ -98,6 +102,7 @@ public class ApplicationInterface {
         Reward reward = lottery.generateReward();
 
         // TODO: PRIORITY 0 !t: check if user already has this reward and update number
+        dbi.changeRewardCountForUser(reward, user, 0);
 
         if (dbi.addRewardToUser(reward, user.getName()) == -1) {
             return -1;
@@ -118,6 +123,7 @@ public class ApplicationInterface {
 
     public void useReward(User user, Reward reward) {
         // TODO: PRIORITY 0 !t: check if user has one or more of this reward and update the number
+        this.dbi.changeRewardCountForUser(reward, user, 0);
         this.dbi.removeRewardFromUser(reward, user);
 
         user.useReward(reward);

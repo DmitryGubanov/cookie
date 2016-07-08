@@ -37,7 +37,7 @@ public class Lottery {
         this.rewards = new ArrayList<>();
     }
 
-    public Lottery(int id, String type) {
+    public Lottery(long id, String type) {
         this.id = id;
         this.type = type;
         this.rn = new Random();
