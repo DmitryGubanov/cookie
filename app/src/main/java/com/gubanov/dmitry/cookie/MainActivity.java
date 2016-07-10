@@ -28,56 +28,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-        // TODO: PRIORITY 3: rewrite this entire activity with code that isn't shit
-        ApplicationInterface api = new ApplicationInterface(this.getApplicationContext(), false);
-        List<Reward> rewards = api.getRewards();
-
-        if (!rewards.isEmpty()) {
-            //LinearLayout rewardsLL = (LinearLayout) findViewById(R.id.main_rewards_header_layout);
-            LinearLayout rewardsLL = (LinearLayout) inflater.inflate(R.layout.main_rewards_header, null);
-            for (Reward reward : rewards) {
-                //LinearLayout rewardLL = (LinearLayout) findViewById(R.id.main_reward_layout);
-                LinearLayout rewardLL = (LinearLayout) inflater.inflate(R.layout.main_reward, null);
-
-                TextView contentTV = (TextView) rewardLL.findViewById(R.id.main_reward_content);
-                TextView weightTV = (TextView) rewardLL.findViewById(R.id.main_reward_weight);
-                TextView typeTV = (TextView) rewardLL.findViewById(R.id.main_reward_type);
-                TextView usableTV = (TextView) rewardLL.findViewById(R.id.main_reward_usable);
-
-                contentTV.setText(reward.getContent());
-                weightTV.setText(String.valueOf(reward.getWeight()));
-                typeTV.setText(reward.getType());
-                if (reward.isUsable()) {
-                    usableTV.setText("usable");
-                } else {
-                    usableTV.setText("unusable");
-                }
-
-                rewardsLL.addView(rewardLL);
-            }
-            CoordinatorLayout cl = (CoordinatorLayout) inflater.inflate(R.layout.activity_main, null);
-            cl.addView(rewardsLL);
-            setContentView(cl);
-        }
-
-        // TODO: PRIORITY 3: remove this for proper code later
-        final Context context = this;
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-                // TODO: PRIORITY 0: go to create reward activity
-                Intent intent = new Intent(context, CreateRewardActivity.class);
-                startActivity(intent);
-            }
-        });
-
     }
 
     @Override

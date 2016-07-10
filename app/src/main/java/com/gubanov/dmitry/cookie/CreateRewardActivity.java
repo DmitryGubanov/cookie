@@ -21,10 +21,6 @@ public class CreateRewardActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // TODO: PRIORITY 3: remove this for proper code later
-        Context context = this;
-        final ApplicationInterface api = new ApplicationInterface(this.getApplicationContext(), false);
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         assert fab != null;
         fab.setOnClickListener(new View.OnClickListener() {
@@ -32,23 +28,6 @@ public class CreateRewardActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                // TODO: PRIORITY 0: get info from fields and create Reward
-
-                // TODO: PRIORITY 3: this is garbage code style, so fix it when you care more
-                EditText eWeight = (EditText)findViewById(R.id.create_reward_activity_weight);
-                EditText eType = (EditText)findViewById(R.id.create_reward_activity_type);
-                EditText eContent = (EditText)findViewById(R.id.create_reward_activity_content);
-
-                assert eWeight != null;
-                assert eType != null;
-                assert eContent != null;
-                int weight = Integer.parseInt(eWeight.getText().toString());
-                String type = eType.getText().toString();
-                String content = eContent.getText().toString();
-
-                Reward newReward = new Reward(weight, type, true, content);
-
-                api.createReward(newReward);
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

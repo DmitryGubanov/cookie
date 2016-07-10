@@ -10,6 +10,8 @@ import java.util.Random;
  */
 public class Lottery {
 
+    // TODO: PRIORITY 0.2: figure out is_available
+
     /**
      * This Lottery's random number generator
      */

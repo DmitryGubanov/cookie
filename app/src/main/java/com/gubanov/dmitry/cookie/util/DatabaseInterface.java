@@ -141,7 +141,7 @@ public class DatabaseInterface extends SQLiteOpenHelper {
 
     public long createReward(Reward reward, String username, String lotteryType) {
         long userLotteryId = getLottery(username, lotteryType).getId();
-        long rewardId = createReward(reward);
+        long rewardId = reward.getId();
         if (rewardId == -1) {
             return -1;
         }
@@ -348,7 +348,6 @@ public class DatabaseInterface extends SQLiteOpenHelper {
 
     // creates a specific lottery for a user
     public long createLottery(String username, String lotteryType) {
-        // TODO: PRIORITY 0 !t
         long userId = getUser(username).getId();
         long lotteryId = getLottery(lotteryType).getId();
 
@@ -385,8 +384,7 @@ public class DatabaseInterface extends SQLiteOpenHelper {
         do {
             lottery = new Lottery(
                     cursor.getLong(cursor.getColumnIndex(LotteryModel.COLUMN_LOTTERY_ID)),
-                    cursor.getString(cursor.getColumnIndex(LotteryModel.COLUMN_TYPE))
-            );
+                    cursor.getString(cursor.getColumnIndex(LotteryModel.COLUMN_TYPE)));
         } while (cursor.moveToNext());
 
         cursor.close();
@@ -397,7 +395,7 @@ public class DatabaseInterface extends SQLiteOpenHelper {
 
     // get specific lottery belonging to user
     public Lottery getLottery(String username, String lotteryType) {
-        // TODO: PRIORITY 1: handle date
+        // TODO: PRIORITY 0.1: handle date
         Lottery lottery;
         long userId = getUser(username).getId();
 
@@ -415,8 +413,7 @@ public class DatabaseInterface extends SQLiteOpenHelper {
         do {
             lottery = new Lottery(
                     cursor.getLong(cursor.getColumnIndex(UserModel.COLUMN_USER_LOTTERY_ID)),
-                    cursor.getString(cursor.getColumnIndex(LotteryModel.COLUMN_TYPE))
-            );
+                    cursor.getString(cursor.getColumnIndex(LotteryModel.COLUMN_TYPE)));
         } while (cursor.moveToNext());
 
         cursor.close();
@@ -442,8 +439,7 @@ public class DatabaseInterface extends SQLiteOpenHelper {
         do {
             lotteries.add(new Lottery(
                     cursor.getLong(cursor.getColumnIndex(LotteryModel.COLUMN_LOTTERY_ID)),
-                    cursor.getString(cursor.getColumnIndex(LotteryModel.COLUMN_TYPE))
-            ));
+                    cursor.getString(cursor.getColumnIndex(LotteryModel.COLUMN_TYPE))));
         } while (cursor.moveToNext());
 
         cursor.close();

@@ -84,10 +84,20 @@ public class ApplicationInterface {
     }
 
     public long createReward(Reward reward, String username, String lotteryType) {
-        return this.dbi.createReward(reward, username, lotteryType);
+        long rewardId = this.dbi.createReward(reward);
+        return this.dbi.createReward(
+                new Reward(
+                        rewardId,
+                        reward.getWeight(),
+                        reward.getType(),
+                        reward.isUsable(),
+                        reward.getContent()),
+                username,
+                lotteryType);
     }
 
     public long draw(User user, String lotteryType) {
+        // TODO: PRIORITY 0.1: handle date
         Lottery lottery = new Lottery(lotteryType);
         List<Reward> possibleRewards = dbi.getRewards(user.getName(), lotteryType);
 
@@ -101,7 +111,7 @@ public class ApplicationInterface {
 
         Reward reward = lottery.generateReward();
 
-        // TODO: PRIORITY 0 !t: check if user already has this reward and update number
+        // TODO: PRIORITY 0.0 !t: check if user already has this reward and update number
         dbi.changeRewardCountForUser(reward, user, 0);
 
         if (dbi.addRewardToUser(reward, user.getName()) == -1) {
@@ -112,17 +122,13 @@ public class ApplicationInterface {
         return reward.getId();
     }
 
-    public void createReward(Reward reward) {
-        this.dbi.createReward(reward);
-    }
-
     // returns all rewards - for testing purposes, mainly
     public List<Reward> getRewards() {
         return this.dbi.getRewards();
     }
 
     public void useReward(User user, Reward reward) {
-        // TODO: PRIORITY 0 !t: check if user has one or more of this reward and update the number
+        // TODO: PRIORITY 0.0 !t: check if user has one or more of this reward and update the number
         this.dbi.changeRewardCountForUser(reward, user, 0);
         this.dbi.removeRewardFromUser(reward, user);
 

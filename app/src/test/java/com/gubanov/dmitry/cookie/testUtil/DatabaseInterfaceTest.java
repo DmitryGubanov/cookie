@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * Tester for the DatabaseInterface.
  */
-public class DatabaseInterfaceTest{
+public class DatabaseInterfaceTest {
     @Test
     public void testCreateAndGetUser() {
         Context context = RuntimeEnvironment.application.getBaseContext();
@@ -41,75 +41,110 @@ public class DatabaseInterfaceTest{
         User twoUser;
 
         users = dbi.getUsers();
-        assertEquals(0, users.size());
+        assertEquals("No users added, so should be 0 users", 0, users.size());
 
         dbi.createUser(oneUsername);
 
         users = dbi.getUsers();
-        assertEquals(1, users.size());
+        assertEquals("1 user added, so should be 1 user", 1, users.size());
 
         dbi.createUser(twoUsername);
 
         users = dbi.getUsers();
-        assertEquals(2, users.size());
+        assertEquals("2 users added, so should be 2 users", 2, users.size());
 
         oneUser = dbi.getUser(oneUsername);
         twoUser = dbi.getUser(twoUsername);
 
-        assertEquals(oneUsername, oneUser.getName());
-        assertEquals(twoUsername, twoUser.getName());
+        assertEquals("First user's username should be the same", oneUsername, oneUser.getName());
+        assertEquals("Second user's username should be the same", twoUsername, twoUser.getName());
     }
+
     @Test
     public void testCreateAndGetLotteryReward() {
         Context context = RuntimeEnvironment.application.getBaseContext();
         DatabaseInterface dbi = new DatabaseInterface(context, true);
 
         String username = "Dmitry";
-
-        Reward newOneReward = new Reward(4, "message", false, "hello");
-        Reward newTwoReward = new Reward(7, "task", true, "do this");
+        dbi.createUser(username);
 
         String lotteryType = "daily";
         String lotteryTypeTwo = "weekly";
-
         dbi.createLottery(lotteryType);
         dbi.createLottery(lotteryTypeTwo);
+        dbi.createLottery(username, lotteryType);
+        dbi.createLottery(username, lotteryTypeTwo);
 
         List<Reward> rewards;
 
         rewards = dbi.getRewards(username, lotteryType);
-        assertEquals(0, rewards.size());
+        assertEquals("No rewards created for type one, so should be 0 rewards for type one",
+                0, rewards.size());
         rewards = dbi.getRewards(username, lotteryTypeTwo);
-        assertEquals(0, rewards.size());
+        assertEquals("No rewards created for type two, so should be 0 rewards for type two",
+                0, rewards.size());
 
-        dbi.createReward(newOneReward, username, lotteryType);
+        Reward newOneReward = new Reward(4, "message", false, "hello");
+        Reward newTwoReward = new Reward(7, "task", true, "do this");
+
+        long rewardOneId = dbi.createReward(newOneReward);
+        dbi.createReward(
+                new Reward(
+                        rewardOneId,
+                        newOneReward.getWeight(),
+                        newOneReward.getType(),
+                        newOneReward.isUsable(),
+                        newOneReward.getContent()),
+                username,
+                lotteryType);
 
         rewards = dbi.getRewards(username, lotteryType);
-        assertEquals(1, rewards.size());
+        assertEquals("1 reward created for type one, so should be 1 rewards for type one",
+                1, rewards.size());
         rewards = dbi.getRewards(username, lotteryTypeTwo);
-        assertEquals(0, rewards.size());
+        assertEquals("No rewards created for type two, so should be 0 rewards for type two",
+                0, rewards.size());
 
-        dbi.createReward(newTwoReward, username, lotteryTypeTwo);
+        long rewardTwoId = dbi.createReward(newTwoReward);
+        dbi.createReward(
+                new Reward(
+                        rewardTwoId,
+                        newTwoReward.getWeight(),
+                        newTwoReward.getType(),
+                        newTwoReward.isUsable(),
+                        newTwoReward.getContent()),
+                username,
+                lotteryTypeTwo);
 
         rewards = dbi.getRewards(username, lotteryType);
-        assertEquals(1, rewards.size());
+        assertEquals("1 reward created for type one, so should be 1 rewards for type one",
+                1, rewards.size());
         rewards = dbi.getRewards(username, lotteryTypeTwo);
-        assertEquals(1, rewards.size());
+        assertEquals("1 reward created for type two, so should be 1 reward for type two",
+                1, rewards.size());
 
         Reward oneReward;
         Reward twoReward;
 
         oneReward = dbi.getRewards(username, lotteryType).get(0);
-        assertEquals(newOneReward.getWeight(), oneReward.getWeight());
-        assertEquals(newOneReward.getType(), oneReward.getType());
-        assertEquals(newOneReward.isUsable(), oneReward.isUsable());
-        assertEquals(newOneReward.getContent(), oneReward.getContent());
+        assertEquals("First rewards' weights should match",
+                newOneReward.getWeight(), oneReward.getWeight());
+        assertEquals("First rewards' types should match",
+                newOneReward.getType(), oneReward.getType());
+        assertEquals("First rewards' usability should match",
+                newOneReward.isUsable(), oneReward.isUsable());
+        assertEquals("First rewards' content should match",
+                newOneReward.getContent(), oneReward.getContent());
 
         twoReward = dbi.getRewards(username, lotteryTypeTwo).get(0);
-        assertEquals(newTwoReward.getWeight(), twoReward.getWeight());
-        assertEquals(newTwoReward.getType(), twoReward.getType());
-        assertEquals(newTwoReward.isUsable(), twoReward.isUsable());
-        assertEquals(newTwoReward.getContent(), twoReward.getContent());
+        assertEquals("Second rewards' weights should match",
+                newTwoReward.getWeight(), twoReward.getWeight());
+        assertEquals("Second rewards' types should match",
+                newTwoReward.getType(), twoReward.getType());
+        assertEquals("Second rewards' usability should match",
+                newTwoReward.isUsable(), twoReward.isUsable());
+        assertEquals("Second rewards' content should match",
+                newTwoReward.getContent(), twoReward.getContent());
 
     }
 
@@ -129,28 +164,56 @@ public class DatabaseInterfaceTest{
         Reward twoReward;
 
         rewards = dbi.getRewards(username);
-        assertEquals(0, rewards.size());
+        assertEquals("No rewards added to user, so user should have 0 rewards",
+                0, rewards.size());
 
-        dbi.addRewardToUser(newOneReward, username);
+
+        long newOneRewardId = dbi.createReward(newOneReward);
+        dbi.addRewardToUser(
+                new Reward(
+                        newOneRewardId,
+                        newOneReward.getWeight(),
+                        newOneReward.getType(),
+                        newOneReward.isUsable(),
+                        newOneReward.getContent()),
+                username);
 
         rewards = dbi.getRewards(username);
-        assertEquals(1, rewards.size());
+        assertEquals("1 reward added to user, so user should have 1 reward",
+                1, rewards.size());
 
-        dbi.addRewardToUser(newTwoReward, username);
+        long newTwoRewardId = dbi.createReward(newTwoReward);
+        dbi.addRewardToUser(
+                new Reward(
+                        newTwoRewardId,
+                        newTwoReward.getWeight(),
+                        newTwoReward.getType(),
+                        newTwoReward.isUsable(),
+                        newTwoReward.getContent()),
+                username);
 
         rewards = dbi.getRewards(username);
-        assertEquals(2, rewards.size());
+        assertEquals("2 rewards added to user, so user should have 2 rewards",
+                2, rewards.size());
 
         oneReward = dbi.getRewards(username).get(0);
         twoReward = dbi.getRewards(username).get(1);
-        assertEquals(newOneReward.getWeight(), oneReward.getWeight());
-        assertEquals(newOneReward.getType(), oneReward.getType());
-        assertEquals(newOneReward.isUsable(), oneReward.isUsable());
-        assertEquals(newOneReward.getContent(), oneReward.getContent());
-        assertEquals(newTwoReward.getWeight(), twoReward.getWeight());
-        assertEquals(newTwoReward.getType(), twoReward.getType());
-        assertEquals(newTwoReward.isUsable(), twoReward.isUsable());
-        assertEquals(newTwoReward.getContent(), twoReward.getContent());
+        assertEquals("First rewards' weights should match",
+                newOneReward.getWeight(), oneReward.getWeight());
+        assertEquals("First rewards' types should match",
+                newOneReward.getType(), oneReward.getType());
+        assertEquals("First rewards' usability should match",
+                newOneReward.isUsable(), oneReward.isUsable());
+        assertEquals("First rewards' content should match",
+                newOneReward.getContent(), oneReward.getContent());
+        assertEquals("Second rewards' weights should match",
+                newTwoReward.getWeight(), twoReward.getWeight());
+        assertEquals("Second rewards' types should match",
+                newTwoReward.getType(), twoReward.getType());
+        assertEquals("Second rewards' usability should match",
+                newTwoReward.isUsable(), twoReward.isUsable());
+        assertEquals("Second rewards' content should match",
+                newTwoReward.getContent(), twoReward.getContent());
     }
 
     @Test
@@ -167,29 +230,36 @@ public class DatabaseInterfaceTest{
         Lottery threeLottery;
 
         lotteries = dbi.getLotteries();
-        assertEquals(0, lotteries.size());
+        assertEquals("No lotteries created, so there should be 0 lotteries",
+                0, lotteries.size());
 
         dbi.createLottery(oneLotteryType);
 
         lotteries = dbi.getLotteries();
-        assertEquals(1, lotteries.size());
+        assertEquals("1 lottery created, so there should be 1 lottery",
+                1, lotteries.size());
 
 
         dbi.createLottery(twoLotteryType);
 
         lotteries = dbi.getLotteries();
-        assertEquals(2, lotteries.size());
+        assertEquals("2 lotteries created, so there should be 2 lotteries",
+                2, lotteries.size());
 
         dbi.createLottery(threeLotteryType);
 
         lotteries = dbi.getLotteries();
-        assertEquals(3, lotteries.size());
+        assertEquals("3 lotteries created, so there should be 3 lotteries",
+                3, lotteries.size());
 
         oneLottery = dbi.getLottery(oneLotteryType);
         twoLottery = dbi.getLottery(twoLotteryType);
         threeLottery = dbi.getLottery(threeLotteryType);
-        assertEquals(oneLotteryType, oneLottery.getType());
-        assertEquals(twoLotteryType, twoLottery.getType());
-        assertEquals(threeLotteryType, threeLottery.getType());
+        assertEquals("First lottery's type should match",
+                oneLotteryType, oneLottery.getType());
+        assertEquals("Second lottery's' type should match",
+                twoLotteryType, twoLottery.getType());
+        assertEquals("Third lottery's type should match",
+                threeLotteryType, threeLottery.getType());
     }
 }
