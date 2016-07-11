@@ -38,7 +38,6 @@ public class LotteryModel {
     }
 
     public static String selectRewards(long userLotteryId) {
-        // TODO: PRIORITY 3: if you select from lottery rewards and filter before doing a left join, it'll be more efficient
         return "SELECT *"
                 + " FROM " + RewardModel.TABLE_REWARD
                 + " WHERE " + RewardModel.COLUMN_REWARD_ID + " IN"

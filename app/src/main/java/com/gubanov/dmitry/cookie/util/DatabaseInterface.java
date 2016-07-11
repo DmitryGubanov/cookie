@@ -14,6 +14,8 @@ import com.gubanov.dmitry.cookie.database.models.LotteryModel;
 import com.gubanov.dmitry.cookie.database.models.RewardModel;
 import com.gubanov.dmitry.cookie.database.models.UserModel;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,6 +39,8 @@ public class DatabaseInterface extends SQLiteOpenHelper {
     private static final String LOG = "DatabaseInterfaceLog";
 
     private SQLiteDatabase db;
+
+    private DateFormat dateFormat = new SimpleDateFormat(UserModel.DATE_FORMAT, Locale.CANADA);
 
     public DatabaseInterface(Context context, boolean testing) {
         super(context, getDatabaseName(testing), null, DATABASE_VERSION);
@@ -98,12 +102,9 @@ public class DatabaseInterface extends SQLiteOpenHelper {
             return null;
         }
 
-        do {
-            user = new User(
-                    cursor.getLong(cursor.getColumnIndex(UserModel.COLUMN_USER_ID)),
-                    cursor.getString(cursor.getColumnIndex(UserModel.COLUMN_USER_NAME))
-            );
-        } while (cursor.moveToNext());
+        user = new User(
+                cursor.getLong(cursor.getColumnIndex(UserModel.COLUMN_USER_ID)),
+                cursor.getString(cursor.getColumnIndex(UserModel.COLUMN_USER_NAME)));
 
         cursor.close();
         this.db.close();
@@ -239,7 +240,8 @@ public class DatabaseInterface extends SQLiteOpenHelper {
                     cursor.getInt(cursor.getColumnIndex(RewardModel.COLUMN_WEIGHT)),
                     cursor.getString(cursor.getColumnIndex(RewardModel.COLUMN_TYPE)),
                     cursor.getInt(cursor.getColumnIndex(RewardModel.COLUMN_IS_USABLE)) == 1,
-                    cursor.getString(cursor.getColumnIndex(RewardModel.COLUMN_CONTENT))));
+                    cursor.getString(cursor.getColumnIndex(RewardModel.COLUMN_CONTENT))
+            ));
         } while (cursor.moveToNext());
 
         cursor.close();
@@ -284,10 +286,34 @@ public class DatabaseInterface extends SQLiteOpenHelper {
         return rewards;
     }
 
-    public long addRewardToUser(Reward reward, String username) {
+    public int getRewardCount(Reward reward, User user) {
+        long rewardId = reward.getId();
+        long userId = user.getId();
+        int rewardCount;
+
+        this.db = getReadableDatabase();
+
+        String selectQuery = UserModel.selectUserReward(userId, rewardId);
+
+        Log.e(LOG, selectQuery);
+
+        Cursor cursor = this.db.rawQuery(selectQuery, null);
+        if (!cursor.moveToFirst()) {
+            return -1;
+        }
+
+        rewardCount = cursor.getInt(cursor.getColumnIndex(UserModel.COLUMN_REWARD_COUNT));
+
+        cursor.close();
+        this.db.close();
+
+        return rewardCount;
+    }
+
+    public long addRewardToUser(Reward reward, User user) {
         // TODO: PRIORITY 3: rename method to be more general
         long rewardId = reward.getId();
-        long userId = getUser(username).getId();
+        long userId = user.getId();
 
         this.db = getWritableDatabase();
 
@@ -316,12 +342,14 @@ public class DatabaseInterface extends SQLiteOpenHelper {
     }
 
     // TODO: PRIORITY 3: use convenient update?
+    // TODO: PRIORITY 3: return ID? maybe count?
     public void changeRewardCountForUser(Reward reward, User user, int change) {
         if (change == 0) {
             return;
         }
 
         this.db = this.getWritableDatabase();
+
         String updateQuery =
                 UserModel.updateRewardCountForUser(user.getId(), reward.getId(), change);
 
@@ -356,8 +384,7 @@ public class DatabaseInterface extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(UserModel.COLUMN_USER_ID, userId);
         values.put(UserModel.COLUMN_LOTTERY_ID, lotteryId);
-        values.put(UserModel.COLUMN_DATE_AVAILABLE,
-                new SimpleDateFormat("yyyy-MM-dd", Locale.CANADA).format(new Date()));
+        values.put(UserModel.COLUMN_DATE_AVAILABLE, this.dateFormat.format(new Date()));
 
         long returnId = this.db.insert(UserModel.TABLE_USER_LOTTERIES, null, values);
 
@@ -381,11 +408,9 @@ public class DatabaseInterface extends SQLiteOpenHelper {
             return null;
         }
 
-        do {
-            lottery = new Lottery(
-                    cursor.getLong(cursor.getColumnIndex(LotteryModel.COLUMN_LOTTERY_ID)),
-                    cursor.getString(cursor.getColumnIndex(LotteryModel.COLUMN_TYPE)));
-        } while (cursor.moveToNext());
+        lottery = new Lottery(
+                cursor.getLong(cursor.getColumnIndex(LotteryModel.COLUMN_LOTTERY_ID)),
+                cursor.getString(cursor.getColumnIndex(LotteryModel.COLUMN_TYPE)));
 
         cursor.close();
         this.db.close();
@@ -395,7 +420,7 @@ public class DatabaseInterface extends SQLiteOpenHelper {
 
     // get specific lottery belonging to user
     public Lottery getLottery(String username, String lotteryType) {
-        // TODO: PRIORITY 0.1: handle date
+        // Variables used in this method
         Lottery lottery;
         long userId = getUser(username).getId();
 
@@ -410,16 +435,41 @@ public class DatabaseInterface extends SQLiteOpenHelper {
             return null;
         }
 
-        do {
+        try {
+            String date = cursor.getString(cursor.getColumnIndex(UserModel.COLUMN_DATE_AVAILABLE));
             lottery = new Lottery(
                     cursor.getLong(cursor.getColumnIndex(UserModel.COLUMN_USER_LOTTERY_ID)),
-                    cursor.getString(cursor.getColumnIndex(LotteryModel.COLUMN_TYPE)));
-        } while (cursor.moveToNext());
+                    cursor.getString(cursor.getColumnIndex(LotteryModel.COLUMN_TYPE)),
+                    dateFormat.parse(date)
+            );
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
+        }
 
         cursor.close();
         this.db.close();
 
         return lottery;
+    }
+
+    public void updateUserLottery(Lottery updatedLottery) {
+        this.db = getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(
+                UserModel.COLUMN_DATE_AVAILABLE,
+                dateFormat.format(updatedLottery.getDateAvailable())
+        );
+
+        this.db.update(
+                UserModel.TABLE_USER_LOTTERIES,
+                values,
+                UserModel.COLUMN_USER_LOTTERY_ID + " = ?",
+                new String[]{String.valueOf(updatedLottery.getId())}
+        );
+
+        this.db.close();
     }
 
     public List<Lottery> getLotteries() {
@@ -439,7 +489,8 @@ public class DatabaseInterface extends SQLiteOpenHelper {
         do {
             lotteries.add(new Lottery(
                     cursor.getLong(cursor.getColumnIndex(LotteryModel.COLUMN_LOTTERY_ID)),
-                    cursor.getString(cursor.getColumnIndex(LotteryModel.COLUMN_TYPE))));
+                    cursor.getString(cursor.getColumnIndex(LotteryModel.COLUMN_TYPE))
+            ));
         } while (cursor.moveToNext());
 
         cursor.close();

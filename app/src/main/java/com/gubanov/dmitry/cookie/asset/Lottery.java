@@ -24,26 +24,39 @@ public class Lottery {
      */
     private String type;
 
-    private List<Reward> rewards;
-
     /**
      * This Lottery's availability date, i.e. when the User will be able to draw from it
      */
     private Date dateAvailable;
 
+    private List<Reward> rewards;
+
 
     public Lottery(String type) {
         this.id = -1;
         this.type = type;
-        this.rn = new Random();
+        this.dateAvailable = null;
         this.rewards = new ArrayList<>();
+
+        this.rn = new Random();
     }
 
     public Lottery(long id, String type) {
         this.id = id;
         this.type = type;
-        this.rn = new Random();
+        this.dateAvailable = null;
         this.rewards = new ArrayList<>();
+
+        this.rn = new Random();
+    }
+
+    public Lottery(long id, String type, Date dateAvailable) {
+        this.id = id;
+        this.type = type;
+        this.dateAvailable = dateAvailable;
+        this.rewards = new ArrayList<>();
+
+        this.rn = new Random();
     }
 
     public long getId() {
@@ -52,6 +65,10 @@ public class Lottery {
 
     public String getType() {
         return this.type;
+    }
+
+    public Date getDateAvailable() {
+        return this.dateAvailable;
     }
 
     public List<Reward> getPossibleRewards() {
@@ -82,7 +99,7 @@ public class Lottery {
             }
         }
 
-        // To make the compiler happy
+        // To make the IDE happy
         return null;
     }
 }

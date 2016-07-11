@@ -7,6 +7,7 @@ import com.gubanov.dmitry.cookie.asset.Reward;
 import com.gubanov.dmitry.cookie.asset.User;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -45,14 +46,6 @@ public class ApplicationInterface {
         return 0;
     }
 
-    private void createLotteries(String username) {
-        List<Lottery> availableLotteries = this.dbi.getLotteries();
-
-        for (Lottery availableLottery : availableLotteries) {
-            this.dbi.createLottery(username, availableLottery.getType());
-        }
-    }
-
     public User login(String username) {
         User user = this.dbi.getUser(username);
         if (user == null) {
@@ -71,18 +64,6 @@ public class ApplicationInterface {
         return user;
     }
 
-    private List<Lottery> buildLotteries(User user) {
-        // TODO: PRIORITY 1: dunno why I started making this all of a sudden
-        List<Lottery> lotteries = new ArrayList<>();
-
-        for (String lotteryType : lotteryTypes) {
-            List<Reward> rewardsForLottery = this.dbi.getRewards(user.getName(), lotteryType);
-            Lottery newLottery = new Lottery(lotteryType);
-        }
-
-        return lotteries;
-    }
-
     public long createReward(Reward reward, String username, String lotteryType) {
         long rewardId = this.dbi.createReward(reward);
         return this.dbi.createReward(
@@ -91,9 +72,11 @@ public class ApplicationInterface {
                         reward.getWeight(),
                         reward.getType(),
                         reward.isUsable(),
-                        reward.getContent()),
+                        reward.getContent()
+                ),
                 username,
-                lotteryType);
+                lotteryType
+        );
     }
 
     public long draw(User user, String lotteryType) {
@@ -111,13 +94,15 @@ public class ApplicationInterface {
 
         Reward reward = lottery.generateReward();
 
-        // TODO: PRIORITY 0.0 !t: check if user already has this reward and update number
-        dbi.changeRewardCountForUser(reward, user, 0);
-
-        if (dbi.addRewardToUser(reward, user.getName()) == -1) {
-            return -1;
+        if (dbi.getRewardCount(reward, user) > 0) {
+            dbi.changeRewardCountForUser(reward, user, 1);
+        } else {
+            dbi.addRewardToUser(reward, user);
         }
+
         user.addReward(reward);
+
+        updateLotteryAvailability(user, lotteryType);
 
         return reward.getId();
     }
@@ -128,10 +113,56 @@ public class ApplicationInterface {
     }
 
     public void useReward(User user, Reward reward) {
-        // TODO: PRIORITY 0.0 !t: check if user has one or more of this reward and update the number
-        this.dbi.changeRewardCountForUser(reward, user, 0);
-        this.dbi.removeRewardFromUser(reward, user);
+        // TODO: PRIORITY 3: currently, this assumes there won't be a reward with a count of 0
+        //                   in the db. might want to change that
+        if (dbi.getRewardCount(reward, user) > 1) {
+            this.dbi.changeRewardCountForUser(reward, user, -1);
+        } else {
+            this.dbi.removeRewardFromUser(reward, user);
+        }
 
         user.useReward(reward);
+    }
+
+    private void createLotteries(String username) {
+        List<Lottery> availableLotteries = this.dbi.getLotteries();
+
+        for (Lottery availableLottery : availableLotteries) {
+            this.dbi.createLottery(username, availableLottery.getType());
+        }
+    }
+
+    private List<Lottery> buildLotteries(User user) {
+        // TODO: PRIORITY 1: dunno why I started making this all of a sudden
+        List<Lottery> lotteries = new ArrayList<>();
+
+        for (String lotteryType : lotteryTypes) {
+            List<Reward> rewardsForLottery = this.dbi.getRewards(user.getName(), lotteryType);
+            Lottery newLottery = new Lottery(lotteryType);
+        }
+
+        return lotteries;
+    }
+
+    private void updateLotteryAvailability(User user, String lotteryType) {
+        // TODO: PRIORITY 3: might be worth it to brainstorm a better way to do this
+        Lottery lottery = dbi.getLottery(user.getName(), lotteryType);
+
+        Calendar calendar = Calendar.getInstance();
+
+        if (lotteryType.equals("DAILY")) {
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
+        } else if (lotteryType.equals("WEEKLY")) {
+            int days = Calendar.MONDAY - calendar.get(Calendar.DAY_OF_WEEK);
+            if (days <= 0) {
+                days += 7;
+            }
+            calendar.add(Calendar.DAY_OF_MONTH, days);
+        } else if (lotteryType.equals("MONTHLY")) {
+            calendar.add(Calendar.MONTH, 1);
+            calendar.set(Calendar.DAY_OF_MONTH, 1);
+        }
+
+        dbi.updateUserLottery(new Lottery(lottery.getId(), lottery.getType(), calendar.getTime()));
     }
 }

@@ -18,6 +18,8 @@ public class UserModel {
     public static final String COLUMN_REWARD_COUNT = "reward_count";
     public static final String COLUMN_DATE_AVAILABLE = "date_available";
 
+    public static final String DATE_FORMAT = "yyyy-MM-dd";
+
     public static final String CREATE_TABLE_USER =
             "CREATE TABLE " + TABLE_USER + "("
                     + COLUMN_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -77,7 +79,7 @@ public class UserModel {
     }
 
     public static String selectUserRewards(String username) {
-        // TODO: PRIORITY 3: this would be kinda useful
+        // TODO: PRIORITY 4: this would be kinda useful
         return "";
     }
 
@@ -96,9 +98,13 @@ public class UserModel {
     }
 
     public static String selectUserLottery(long userId, String lotteryType) {
-        return "SELECT " + COLUMN_USER_LOTTERY_ID + ", " + LotteryModel.COLUMN_TYPE
+        return "SELECT " + COLUMN_USER_LOTTERY_ID + ", "
+                + LotteryModel.COLUMN_TYPE + ", "
+                + COLUMN_DATE_AVAILABLE
                 + " FROM "
-                + "(SELECT " + COLUMN_USER_LOTTERY_ID + ", " + COLUMN_LOTTERY_ID
+                + "(SELECT " + COLUMN_USER_LOTTERY_ID + ", "
+                + COLUMN_LOTTERY_ID + ", "
+                + COLUMN_DATE_AVAILABLE
                 + " FROM " + TABLE_USER_LOTTERIES
                 + " WHERE " + COLUMN_USER_ID + " = " + userId + ") AS ul"
                 + " INNER JOIN "

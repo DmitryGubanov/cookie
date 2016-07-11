@@ -21,6 +21,11 @@ import static junit.framework.Assert.assertNull;
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 18)
+
+// TODO: PRIORITY 1: test user having more than one of a single reward
+// TODO: PRIORITY 1: lotteries should be available upon creation
+// TODO: PRIORITY 1: lotteries should not be available after drawing
+
 /**
  * Tester for the ApplicationInterface.
  */
