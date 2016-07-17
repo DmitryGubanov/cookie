@@ -94,7 +94,7 @@ public class ApplicationInterface {
 
         Reward reward = lottery.generateReward();
 
-        if (dbi.getRewardCount(reward, user) > 0) {
+        if (dbi.getRewardCount(reward.getId(), user) > 0) {
             dbi.changeRewardCountForUser(reward, user, 1);
         } else {
             dbi.addRewardToUser(reward, user);
@@ -115,7 +115,7 @@ public class ApplicationInterface {
     public void useReward(User user, Reward reward) {
         // TODO: PRIORITY 3: currently, this assumes there won't be a reward with a count of 0
         //                   in the db. might want to change that
-        if (dbi.getRewardCount(reward, user) > 1) {
+        if (dbi.getRewardCount(reward.getId(), user) > 1) {
             this.dbi.changeRewardCountForUser(reward, user, -1);
         } else {
             this.dbi.removeRewardFromUser(reward, user);
@@ -150,17 +150,26 @@ public class ApplicationInterface {
 
         Calendar calendar = Calendar.getInstance();
 
-        if (lotteryType.equals("DAILY")) {
+        if (lotteryType.toUpperCase().equals("DAILY")) {
             calendar.add(Calendar.DAY_OF_MONTH, 1);
-        } else if (lotteryType.equals("WEEKLY")) {
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+        } else if (lotteryType.toUpperCase().equals("WEEKLY")) {
             int days = Calendar.MONDAY - calendar.get(Calendar.DAY_OF_WEEK);
             if (days <= 0) {
                 days += 7;
             }
             calendar.add(Calendar.DAY_OF_MONTH, days);
-        } else if (lotteryType.equals("MONTHLY")) {
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+        } else if (lotteryType.toUpperCase().equals("MONTHLY")) {
             calendar.add(Calendar.MONTH, 1);
             calendar.set(Calendar.DAY_OF_MONTH, 1);
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
         }
 
         dbi.updateUserLottery(new Lottery(lottery.getId(), lottery.getType(), calendar.getTime()));

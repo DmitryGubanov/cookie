@@ -286,8 +286,7 @@ public class DatabaseInterface extends SQLiteOpenHelper {
         return rewards;
     }
 
-    public int getRewardCount(Reward reward, User user) {
-        long rewardId = reward.getId();
+    public int getRewardCount(long rewardId, User user) {
         long userId = user.getId();
         int rewardCount;
 
@@ -336,9 +335,11 @@ public class DatabaseInterface extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         // TODO: PRIORITY 3: I'm not a fan of this structure... kinda ugly
-        db.delete(UserModel.TABLE_USER_REWARDS,
+        db.delete(
+                UserModel.TABLE_USER_REWARDS,
                 UserModel.COLUMN_USER_ID + " = ? AND " + UserModel.COLUMN_REWARD_ID + " = ?",
-                new String[]{String.valueOf(userId), String.valueOf(rewardId)});
+                new String[]{String.valueOf(userId), String.valueOf(rewardId)}
+        );
     }
 
     // TODO: PRIORITY 3: use convenient update?
@@ -365,7 +366,7 @@ public class DatabaseInterface extends SQLiteOpenHelper {
         this.db = getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(LotteryModel.COLUMN_TYPE, lotteryType);
+        values.put(LotteryModel.COLUMN_TYPE, lotteryType.toUpperCase());
 
         long returnId = this.db.insert(LotteryModel.TABLE_LOTTERY, null, values);
 
@@ -399,7 +400,7 @@ public class DatabaseInterface extends SQLiteOpenHelper {
 
         this.db = getReadableDatabase();
 
-        String selectQuery = LotteryModel.selectLottery(lotteryType);
+        String selectQuery = LotteryModel.selectLottery(lotteryType.toUpperCase());
 
         Log.e(LOG, selectQuery);
 
@@ -426,7 +427,7 @@ public class DatabaseInterface extends SQLiteOpenHelper {
 
         this.db = getReadableDatabase();
 
-        String selectQuery = UserModel.selectUserLottery(userId, lotteryType);
+        String selectQuery = UserModel.selectUserLottery(userId, lotteryType.toUpperCase());
 
         Log.e(LOG, selectQuery);
 

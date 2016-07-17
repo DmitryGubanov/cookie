@@ -1,8 +1,50 @@
 <resources>
+
+    <!-- Strings related to login -->
+    <string name="title_activity_login">Log In</string>
+    <string name="hint_username">Username</string>
+    <string name="button_login">Log in</string>
+    <string name="button_register">Register</string>
+
+    <!-- Strings related to the home page -->
+    <string name="title_activity_main">Cookie</string>
+    <string name="button_manage_lottery_rewards">Recipes</string>
+    <string name="button_manage_user_rewards">All yo\' winnings</string>
+
+    <!-- Strings related to the draw lottery page -->
+    <string name="title_activity_draw_lottery">Draw Cookie</string>
+    <string name="button_draw_lottery">Draw Lottery</string>
+
+    <!-- Strings related to the manage lottery rewards page -->
+    <string name="title_activity_manage_lottery_rewards">Recipes</string>
+    <string name="button_create_lottery_reward">Create a new reward</string>
+    <string name="button_edit_lottery_reward">Edit current rewards</string>
+    <string name="button_delete_lottery_reward">Remove a reward</string>
+
+
+    <!-- General strings -->
     <string name="app_name">Cookie</string>
     <string name="action_settings">Settings</string>
+    <string name="daily">Daily</string>
+    <string name="weekly">Weekly</string>
+    <string name="monthly">Monthly</string>
     <string name="reward_weight_hint">Reward weight (number)</string>
     <string name="reward_type_hint">Reward type (string)</string>
     <string name="reward_content_hint">Reward content/message (string)</string>
     <string name="title_activity_create_reward">CreateRewardActivity</string>
+
+    <!-- Strings related to login -->
+    <!--
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password (optional)</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+    -->
 </resources>

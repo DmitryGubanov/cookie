@@ -5,8 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="com.gubanov.dmitry.cookie.MainActivity">
+    tools:context="com.gubanov.dmitry.cookie.DrawLotteryActivity">
 
-    <include layout="@layout/content_main" />
+    <include layout="@layout/content_draw_lottery" />
 
 </android.support.design.widget.CoordinatorLayout>

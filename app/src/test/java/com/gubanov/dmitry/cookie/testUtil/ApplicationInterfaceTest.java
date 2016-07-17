@@ -5,6 +5,7 @@ import android.content.Context;
 import com.gubanov.dmitry.cookie.BuildConfig;
 import com.gubanov.dmitry.cookie.asset.Lottery;
 import com.gubanov.dmitry.cookie.asset.Reward;
+import com.gubanov.dmitry.cookie.asset.User;
 import com.gubanov.dmitry.cookie.util.ApplicationInterface;
 import com.gubanov.dmitry.cookie.util.DatabaseInterface;
 
@@ -14,20 +15,21 @@ import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
+import java.util.Date;
 import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 18)
 
-// TODO: PRIORITY 1: test user having more than one of a single reward
-// TODO: PRIORITY 1: lotteries should be available upon creation
-// TODO: PRIORITY 1: lotteries should not be available after drawing
-
 /**
  * Tester for the ApplicationInterface.
+ *
+ * The motivation for this testing module is to test the features of the app.
+ * ex. if the user logs in, do they have all their lotteries and rewards?
  */
 public class ApplicationInterfaceTest {
     // TODO: PRIORITY 3: rewrite tests to be neater
@@ -70,11 +72,101 @@ public class ApplicationInterfaceTest {
 
         lotteries = dbi.getLotteries(username);
         assertEquals("User's first lottery's type should match",
-                lotteryTypeOne, lotteries.get(0).getType());
+                lotteryTypeOne.toUpperCase(), lotteries.get(0).getType());
         assertEquals("User's second lottery's type should match",
-                lotteryTypeTwo, lotteries.get(1).getType());
+                lotteryTypeTwo.toUpperCase(), lotteries.get(1).getType());
         assertEquals("User's third lottery's type should match",
-                lotteryTypeThree, lotteries.get(2).getType());
+                lotteryTypeThree.toUpperCase(), lotteries.get(2).getType());
+    }
+
+    @Test
+    public void testLotteryAvailability() {
+        Context context = RuntimeEnvironment.application.getBaseContext();
+        ApplicationInterface api = new ApplicationInterface(context, true);
+        DatabaseInterface dbi = new DatabaseInterface(context, true);
+
+        String lotteryTypeOne = "daily";
+        String lotteryTypeTwo = "weekly";
+        String lotteryTypeThree = "monthly";
+
+        dbi.createLottery(lotteryTypeOne);
+        dbi.createLottery(lotteryTypeTwo);
+        dbi.createLottery(lotteryTypeThree);
+
+        String username = "Dmitry";
+        User user;
+
+        assertNull("User should not exist before registered", dbi.getUser(username));
+
+        api.register(username);
+        user = api.login(username);
+
+        Reward newRewardOne = new Reward(1, "message", false, "hello");
+        Reward newRewardTwo = new Reward(2, "task", true, "do this");
+        Reward newRewardThree = new Reward(3, "message", false, "hi");
+
+        api.createReward(newRewardOne, username, lotteryTypeOne);
+        api.createReward(newRewardTwo, username, lotteryTypeTwo);
+        api.createReward(newRewardThree, username, lotteryTypeThree);
+
+        assertTrue(
+                "Lottery one was just created, so current date should be after its available date",
+                new Date().after(dbi.getLottery(username, lotteryTypeOne).getDateAvailable())
+        );
+        assertTrue(
+                "Lottery two was just created, so current date should be after its available date",
+                new Date().after(dbi.getLottery(username, lotteryTypeTwo).getDateAvailable())
+        );
+        assertTrue(
+                "Lottery three was just created, so current date should be after its available date",
+                new Date().after(dbi.getLottery(username, lotteryTypeThree).getDateAvailable())
+        );
+
+        api.draw(user, lotteryTypeOne);
+
+        assertTrue(
+                "Lottery one was drawn from, so current date should be before its available date",
+                new Date().before(dbi.getLottery(username, lotteryTypeOne).getDateAvailable())
+        );
+        assertTrue(
+                "Lottery two was not drawn, so current date should be after its available date",
+                new Date().after(dbi.getLottery(username, lotteryTypeTwo).getDateAvailable())
+        );
+        assertTrue(
+                "Lottery three was not drawn, so current date should be after its available date",
+                new Date().after(dbi.getLottery(username, lotteryTypeThree).getDateAvailable())
+        );
+
+        api.draw(user, lotteryTypeTwo);
+
+        assertTrue(
+                "Lottery one was drawn from, so current date should be before its available date",
+                new Date().before(dbi.getLottery(username, lotteryTypeOne).getDateAvailable())
+        );
+        assertTrue(
+                "Lottery two was drawn from, so current date should be before its available date",
+                new Date().before(dbi.getLottery(username, lotteryTypeTwo).getDateAvailable())
+        );
+        assertTrue(
+                "Lottery three was not drawn, so current date should be after its available date",
+                new Date().after(dbi.getLottery(username, lotteryTypeThree).getDateAvailable())
+        );
+
+        api.draw(user, lotteryTypeThree);
+
+        assertTrue(
+                "Lottery one was drawn from, so current date should be before its available date",
+                new Date().before(dbi.getLottery(username, lotteryTypeOne).getDateAvailable())
+        );
+        assertTrue(
+                "Lottery two was drawn from, so current date should be before its available date",
+                new Date().before(dbi.getLottery(username, lotteryTypeTwo).getDateAvailable())
+        );
+        assertTrue(
+                "Lottery three was drawn from, so current date should be after its available date",
+                new Date().before(dbi.getLottery(username, lotteryTypeThree).getDateAvailable())
+        );
+
     }
 
     @Test
@@ -237,6 +329,100 @@ public class ApplicationInterfaceTest {
     }
 
     @Test
+    public void testUserDrawsDuplicateReward() {
+        Context context = RuntimeEnvironment.application.getBaseContext();
+        ApplicationInterface api = new ApplicationInterface(context, true);
+        DatabaseInterface dbi = new DatabaseInterface(context, true);
+
+        String lotteryType = "daily";
+
+        dbi.createLottery(lotteryType);
+
+        String username = "Dmitry";
+        User user;
+
+        assertNull("User should not exist before registered", dbi.getUser(username));
+
+        api.register(username);
+        user = api.login(username);
+
+        Reward newRewardOne = new Reward(1, "message", false, "hello");
+
+        api.createReward(newRewardOne, username, lotteryType);
+        long newRewardId = dbi.getRewards(username, lotteryType).get(0).getId();
+
+        assertEquals(
+                "User has drawn 0 rewards, so should have 0 rewards",
+                0,
+                dbi.getRewards(username).size()
+        );
+
+        long rewardId = api.draw(user, lotteryType);
+
+        assertEquals(
+                "Only 1 reward created, so drawn reward's ID should match",
+                newRewardId,
+                rewardId
+        );
+
+        List<Reward> rewards = dbi.getRewards(username);
+
+        assertEquals(
+                "User has drawn 1 reward, so should have 1 reward",
+                1,
+                dbi.getRewards(username).size()
+        );
+        assertEquals(
+                "Only 1 reward created, user drawn 1 time, so should have 1 of this reward",
+                1,
+                dbi.getRewardCount(rewardId, user)
+        );
+
+        rewardId = api.draw(user, lotteryType);
+
+        assertEquals(
+                "Only 1 reward created, so drawn reward's ID should match",
+                newRewardId,
+                rewardId
+        );
+
+        rewards = dbi.getRewards(username);
+
+        assertEquals(
+                "User has drawn 2 rewards, so should have 2 rewards",
+                2,
+                dbi.getRewards(username).size()
+        );
+        assertEquals(
+                "Only 1 reward created, user drawn 2 times, so should have 2 of this reward",
+                2,
+                dbi.getRewardCount(rewardId, user)
+        );
+
+        rewardId = api.draw(user, lotteryType);
+
+        assertEquals(
+                "Only 1 reward created, so drawn reward's ID should match",
+                newRewardId,
+                rewardId
+        );
+
+        rewards = dbi.getRewards(username);
+
+        assertEquals(
+                "User has drawn 3 rewards, so should have 3 rewards",
+                3,
+                dbi.getRewards(username).size()
+        );
+        assertEquals(
+                "Only 1 reward created, user drawn 3 times, so should have 3 of this reward",
+                3,
+                dbi.getRewardCount(rewardId, user)
+        );
+
+    }
+
+    @Test
     public void testUserUsesReward() {
         Context context = RuntimeEnvironment.application.getBaseContext();
         ApplicationInterface api = new ApplicationInterface(context, true);
@@ -262,5 +448,75 @@ public class ApplicationInterfaceTest {
                 "User has drawn 1 time and used 1 reward, so they should have 0 rewards",
                 0,
                 dbi.getRewards(username).size());
+    }
+
+    @Test
+    public void testUserUsesDuplicateRewards() {
+        Context context = RuntimeEnvironment.application.getBaseContext();
+        ApplicationInterface api = new ApplicationInterface(context, true);
+        DatabaseInterface dbi = new DatabaseInterface(context, true);
+
+        String lotteryType = "daily";
+
+        dbi.createLottery(lotteryType);
+
+        String username = "Dmitry";
+        User user;
+
+        assertNull("User should not exist before registered", dbi.getUser(username));
+
+        api.register(username);
+        user = api.login(username);
+
+        Reward newReward = new Reward(1, "message", false, "hello");
+
+        long rewardId = api.createReward(newReward, username, lotteryType);
+        Reward createdReward = new Reward(
+                rewardId,
+                newReward.getWeight(),
+                newReward.getType(),
+                newReward.isUsable(),
+                newReward.getContent()
+        );
+
+        rewardId = api.draw(user, lotteryType);
+
+        assertEquals(
+                "User has drawn 1 time, so should have 1 of this reward",
+                1,
+                dbi.getRewardCount(rewardId, user)
+        );
+
+        rewardId = api.draw(user, lotteryType);
+
+        assertEquals(
+                "User has drawn 2 times, so should have 2 of this reward",
+                2,
+                dbi.getRewardCount(rewardId, user)
+        );
+
+        rewardId = api.draw(user, lotteryType);
+
+        assertEquals(
+                "User has drawn 3 times, so should have 3 of this reward",
+                3,
+                dbi.getRewardCount(rewardId, user)
+        );
+
+        api.useReward(user, createdReward);
+
+        assertEquals(
+                "User has drawn 3 times and used 1 reward, so they should have 2 of this reward",
+                2,
+                dbi.getRewardCount(rewardId, user)
+        );
+
+        api.useReward(user, createdReward);
+
+        assertEquals(
+                "User has drawn 3 times and used 2 rewards, so they should have 1 of this reward",
+                1,
+                dbi.getRewardCount(rewardId, user)
+        );
     }
 }
