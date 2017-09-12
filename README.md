@@ -5,6 +5,8 @@ A two-person Android game inspired by "relationship coupons". In short, both peo
 Currently, plans to enforce abiding to your own rewards or keeping track of how rewards will be used are up in the air. The main goal is getting one-player functionality going before involving anything over the internet.
 
 # Current work in progress
+This is a low priority project which gets benched for other, more interesting projects.  
+
 o connect the activities to each other  
 o introduce some design to activities  
 o connect the register activity to the API  
