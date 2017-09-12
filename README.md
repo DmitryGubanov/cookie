@@ -2,8 +2,6 @@
 
 A two-person Android game inspired by "relationship coupons". In short, both people provide a set of rewards they're willing to be responsible for, such a washing dishes or taking them out to dinner. For each reward, you can specify a probability for drawing it from the set of rewards as well as the frequency with which that reward can be drawn (once a day, week, month). Then the other person will be able to draw that reward from their periodic lottery (or fortune cookie) and have that reward available for usage.
 
-Currently, plans to enforce abiding to your own rewards or keeping track of how rewards will be used are up in the air. The main goal is getting one-player functionality going before involving anything over the internet.
-
 # Current work in progress
 This is a low priority project which gets benched for other, more interesting projects.  
 
